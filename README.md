@@ -6,7 +6,7 @@
 
 ## 效果图
 
-![image](figure\FIG.PNG)
+![image](figure\result.png)
 
 ## 已实现特性
 
