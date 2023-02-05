@@ -4,6 +4,10 @@
 
 本项目为光线追踪渲染引擎，目前正在开发中
 
+## 效果图
+
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/BTDF.png)
+
 ## 已实现特性
 
 ### 渲染器
