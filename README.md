@@ -6,7 +6,7 @@
 
 ## 效果图
 
-![image](https://github.com/xiaodoubao22/LearnRendering/tree/main/figure/BTDF.png)
+![image](figure\FIG.PNG)
 
 ## 已实现特性
 
