@@ -26,7 +26,7 @@ bool MaterialFrostedGlass::SampleAndEval(const glm::vec3& normal, const glm::vec
 	float sinTheta = std::sqrt(1.0f - cosThetaSquare);
 	glm::vec3 localWh(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
 	glm::vec3 wh = LocalToWorld(localWh, normal);
-	//float distribution = DistributionGGX(normal, wh);
+	float distribution = DistributionGGX(normal, wh);
 
 	// calculate wo and pdf
 	float dotWiToNormal = dot(wi, normal);
@@ -48,48 +48,43 @@ bool MaterialFrostedGlass::SampleAndEval(const glm::vec3& normal, const glm::vec
 
 		// fr
 		float geometry = GeometrySmith(abs(dotWiToNormal), abs(dotWoToNormal));
-		float frFactor = /*fresnel * distribution * */geometry / (4.0f * (-dotWiToNormal));	// BRDF * cosine
+		float frFactor = /*fresnel * distribution * */geometry / (4.0f * abs(dotWiToNormal));	// BRDF * cosine
 		fr = glm::vec3(frFactor);
 	}
 	else {
 		// refract
+		float etaI = 1.0f, etaT = mIor;
+		glm::vec3 N = normal;
+		glm::vec3 H = wh;
+		if (dotWiToNormal > 0) {
+			std::swap(etaI, etaT);
+			N = -N;
+			H = -H;
+		}
+		float eta = etaI / etaT;
 		// wo
-		if (dot(wi, wh) < 0.0f) {
-			float eta = 1.0f / mIor;
-			wo = glm::refract(wi, wh, eta);
-		}
-		else {
-			float eta = mIor;
-			wo = glm::refract(wi, -wh, eta);
-		}
-		wo = glm::normalize(wo);
-		//wo = glm::refract(wi, wh, 1.0f / mIor);
+		wo = glm::normalize(glm::refract(wi, H, eta));
+
 		float dotWoToNormal = dot(wo, normal);
 		if (dotWiToNormal * dotWoToNormal < 0.0f) {
 			return false;
 		}
 
 		// fr
-		float etaI = 1.0f, etaT = mIor;
-		if (dotWiToNormal > 0) {
-			std::swap(etaI, etaT);
-		}
-		float dotWiToHt = dot(wi, wh);
-		float dotWoToHt = dot(wo, wh);
+		float dotWiToH = dot(wi, H);
+		float dotWoToH = dot(wo, H);
 		
 		float geometry = GeometrySmith(abs(dotWiToNormal), abs(dotWoToNormal));
 
-		float factor = abs(dotWiToHt) * abs(dotWoToHt) / (abs(dotWiToNormal)/* * abs(dotWoToNormal)*/); // factor * cosine
-		float denom = -etaI * dotWiToHt + etaT * dotWoToHt;
-		denom = denom * denom;
-		float nom = etaI * etaI * /*(1.0f - fresnel) * distribution * */geometry;
+		float factor = /*abs(dotWiToH) * */abs(dotWoToH) / (abs(dotWiToNormal)/* * abs(dotWoToNormal)*/); // factor * cosine
+		//float denom = -etaI * dotWiToH + etaT * dotWiToH;
+		//denom = denom * denom;
+		float nom = /*etaI * etaI * (1.0f - fresnel) * distribution * */geometry;
 
-		fr = glm::vec3(factor * nom / denom);
-		//fr = glm::vec3(1.0f);
+		fr = glm::vec3(factor * nom/* / denom*/);
 
 		// pdf
-		pdf = /*(1.0f - fresnel) * distribution * */dot(wh, normal) / denom;
-		//pdf = 1.0f;
+		pdf = /*(1.0f - fresnel) * distribution * */dot(wh, normal)/* * etaI * etaI * abs(dotWiToH) / denom*/;
 	}
 
 	return true;
@@ -138,7 +133,7 @@ bool MaterialFrostedGlass::SampleWithImportance(const glm::vec3& normal, const g
 glm::vec3 MaterialFrostedGlass::Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) {
 	float dotWiToNormal = dot(wi, normal);
 	float dotWoToNormal = dot(wo, normal);
-	if (dotWiToNormal * dotWoToNormal > 0 ) {
+	if (dotWiToNormal * dotWoToNormal > 0) {
 		// refract
 		float etaI = 1.0f, etaT = mIor;
 		if (dotWiToNormal > 0) {
@@ -146,32 +141,36 @@ glm::vec3 MaterialFrostedGlass::Eval(const glm::vec3& normal, const glm::vec3& w
 		}
 
 		// ht
-		glm::vec3 ht_N = normalize(- etaI * wi - etaT * wo);
+		glm::vec3 ht_N = normalize(etaI * wi - etaT * wo);	// 指向折射率低侧
+		glm::vec3 H = ht_N;		// 指向入射一侧
+		glm::vec3 N = normal;	// 指向入射一侧
+		if (dotWiToNormal > 0) {
+			H = -H;
+			N = -N;
+		}
 
 		// fr
-		float dotWiToHt = dot(wi, ht_N);
-		float dotWoToHt = dot(wo, ht_N);
+		float dotWiToH = dot(wi, H);
+		float dotWoToH = dot(wo, H);
 
 		float distribution = DistributionGGX(normal, ht_N);
 		float fresnel = Material::Fresnel(wi, ht_N, mIor);
 		float geometry = GeometrySmith(abs(dotWiToNormal), abs(dotWoToNormal));
 
-		float factor = abs(dotWiToHt) * abs(dotWoToHt) / (abs(dotWiToNormal)/* * abs(dotWoToNormal)*/);	// factor * cosine
-		float denom = -etaI * dotWiToHt + etaT * dotWoToHt;
+		float factor = abs(dotWiToH) * abs(dotWoToH) / (abs(dotWiToNormal)/* * abs(dotWoToNormal)*/);	// factor * cosine
+		float denom = -etaI * dotWiToH + etaT * dotWoToH;
 		denom = denom * denom;
 		float nom = etaI * etaI * (1.0f - fresnel) * distribution * geometry;
 
 		return glm::vec3(factor * nom / denom);
-		//return glm::vec3(1.0f);
 	}
 	else {
 		// reflect
-		glm::vec3 halfVector = normalize(-wi + wo);
+		glm::vec3 halfVector = normalize(-wi + wo);	// 指向入射一侧
 		float Distribution = DistributionGGX(normal, halfVector);
 		float fresnel = Material::Fresnel(wi, halfVector, mIor);
 		float Geometry = GeometrySmith(abs(dotWiToNormal), abs(dotWoToNormal));
-
-		return Distribution * glm::vec3(fresnel) * Geometry / (4.0f * (-dotWiToNormal));	// BRDF * cosine
+		return Distribution * glm::vec3(fresnel) * Geometry / (4.0f * abs(dotWiToNormal));	// BRDF * cosine
 	}
 }
 

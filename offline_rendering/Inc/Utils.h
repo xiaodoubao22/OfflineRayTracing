@@ -19,7 +19,7 @@ namespace Consts {
     const float SCALE = 4.0f;   // 用于测试模型放缩
     //const glm::vec3 EYE(278.0f, 273.0f, 800.0f);
     const glm::vec3 EYE(0, 0, 4.0f * SCALE);
-    const int SPP = 64;
+    const int SPP = 2048;
     const int THREAD_COUNT = 14;
     const float GAMA = 1.0f / 2.2f;
 }
@@ -36,6 +36,8 @@ namespace Utils {
     inline glm::vec3 GlmVecMax(glm::vec3 a, glm::vec3 b);
     inline glm::vec3 GlmVecMax(glm::vec3 a, glm::vec3 b, glm::vec3 c);
     inline glm::vec3 Refract(glm::vec3 I, glm::vec3 N, float eta);
+
+    static FILE* mSaveRayPath = nullptr;
 };
 
 inline float Utils::DegToRad(float deg) {

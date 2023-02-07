@@ -67,8 +67,8 @@ int main() {
     MaterialSpecular* redSpecular = new MaterialSpecular(RED);
 
     MaterialTransparent* whiteTransparent = new MaterialTransparent(1.5f);
-    MaterialCookTorrance* GoldGlossy = new MaterialCookTorrance(0.3f, glm::vec3(1.00f, 0.86f, 0.57f));
-    MaterialFrostedGlass* FrostedGlass = new MaterialFrostedGlass(0.05f, 1.5f, glm::vec3(1.00f, 0.86f, 0.57f));
+    MaterialCookTorrance* GoldGlossy = new MaterialCookTorrance(0.5f, glm::vec3(1.00f, 0.86f, 0.57f));
+    MaterialFrostedGlass* FrostedGlass = new MaterialFrostedGlass(0.3f, 1.5f, glm::vec3(1.00f, 0.86f, 0.57f));
 
     MaterialDefuse* whiteDefuse = new MaterialDefuse(WHITE);
     MaterialDefuse* blueDefuse = new MaterialDefuse(BLUE);
@@ -94,8 +94,8 @@ int main() {
     scene->Push(new Triangle(glm::vec3(1, 1, 1) * Consts::SCALE, glm::vec3(-1, 1, 1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, whiteDefuse));
     scene->Push(new Triangle(glm::vec3(1, 1, 1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, glm::vec3(1, 1, -1) * Consts::SCALE, whiteDefuse));
     // back
-    scene->Push(new Triangle(glm::vec3(1, -1, -1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, glm::vec3(-1, -1, -1) * Consts::SCALE, cyanDefuse));
-    scene->Push(new Triangle(glm::vec3(1, -1, -1) * Consts::SCALE, glm::vec3(1, 1, -1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, cyanDefuse));
+    scene->Push(new Triangle(glm::vec3(1, -1, -1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, glm::vec3(-1, -1, -1) * Consts::SCALE, whiteDefuse));
+    scene->Push(new Triangle(glm::vec3(1, -1, -1) * Consts::SCALE, glm::vec3(1, 1, -1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, whiteDefuse));
     // left
     scene->Push(new Triangle(glm::vec3(-1, -1, -1) * Consts::SCALE, glm::vec3(-1, 1, 1) * Consts::SCALE, glm::vec3(-1, -1, 1) * Consts::SCALE, blueDefuse));
     scene->Push(new Triangle(glm::vec3(-1, -1, -1) * Consts::SCALE, glm::vec3(-1, 1, -1) * Consts::SCALE, glm::vec3(-1, 1, 1) * Consts::SCALE, blueDefuse));
@@ -103,8 +103,8 @@ int main() {
     scene->Push(new Triangle(glm::vec3(1, 1, 1) * Consts::SCALE, glm::vec3(1, -1, -1) * Consts::SCALE, glm::vec3(1, -1, 1) * Consts::SCALE, redDefuse));
     scene->Push(new Triangle(glm::vec3(1, -1, -1) * Consts::SCALE, glm::vec3(1, 1, 1) * Consts::SCALE, glm::vec3(1, 1, -1) * Consts::SCALE, redDefuse));
     // yellow
-    scene->Push(new Triangle(glm::vec3(0.1, -0.9, -0.9) * Consts::SCALE, glm::vec3(-0.1, 0.9, -0.9) * Consts::SCALE, glm::vec3(-0.1, -0.9, -0.9) * Consts::SCALE, yellowDefuse));
-    scene->Push(new Triangle(glm::vec3(0.1, -0.9, -0.9) * Consts::SCALE, glm::vec3(0.1, 0.9, -0.9) * Consts::SCALE, glm::vec3(-0.1, 0.9, -0.9) * Consts::SCALE, yellowDefuse));
+    scene->Push(new Triangle(glm::vec3(0.5, -0.5, -0.9) * Consts::SCALE, glm::vec3(-0.5, 0.5, -0.9) * Consts::SCALE, glm::vec3(-0.5, -0.5, -0.9) * Consts::SCALE, cyanDefuse));
+    scene->Push(new Triangle(glm::vec3(0.5, -0.5, -0.9) * Consts::SCALE, glm::vec3(0.5, 0.5, -0.9) * Consts::SCALE, glm::vec3(-0.5, 0.5, -0.9) * Consts::SCALE, cyanDefuse));
 
     //scene->Push(new Triangle(glm::vec3(-0.5, 0.5, -0.75) * Consts::SCALE, glm::vec3(0.5, -0.5, -0.75) * Consts::SCALE, glm::vec3(-0.5, -0.5, -0.75) * Consts::SCALE, whiteTransparent));
     //scene->Push(new Triangle(glm::vec3(0.5, 0.5, -0.75) * Consts::SCALE, glm::vec3(0.5, -0.5, -0.75) * Consts::SCALE, glm::vec3(-0.5, 0.5, -0.75) * Consts::SCALE, whiteTransparent));
@@ -112,10 +112,10 @@ int main() {
     //scene->Push(new Triangle(glm::vec3(0.5, -0.5, -0.7) * Consts::SCALE, glm::vec3(-0.5, 0.5, -0.7) * Consts::SCALE, glm::vec3(-0.5, -0.5, -0.7) * Consts::SCALE, whiteTransparent));
     //scene->Push(new Triangle(glm::vec3(0.5, -0.5, -0.7) * Consts::SCALE, glm::vec3(0.5, 0.5, -0.7) * Consts::SCALE, glm::vec3(-0.5, 0.5, -0.7) * Consts::SCALE, whiteTransparent));
 
-    scene->Push(new Sphere(glm::vec3(-0.75, -0.8, 0.6)* Consts::SCALE, 0.2f * Consts::SCALE, whiteSpecular));
-    //scene->Push(new Sphere(glm::vec3(-0.3, -0.7, 0.2) * Consts::SCALE, 0.3f * Consts::SCALE, redSpecular));
-    //scene->Push(new Sphere(glm::vec3(0.3, -0.6, -0.5)* Consts::SCALE, 0.4f * Consts::SCALE, GoldGlossy));
-    scene->Push(new Sphere(glm::vec3(0.5, -0.75, 0.7)* Consts::SCALE, 0.25f * Consts::SCALE, whiteTransparent));
+    scene->Push(new Sphere(glm::vec3(-0.75, -0.8, 0.6)* Consts::SCALE, 0.2f * Consts::SCALE, whiteTransparent));
+    scene->Push(new Sphere(glm::vec3(-0.3, -0.7, 0.2) * Consts::SCALE, 0.3f * Consts::SCALE, redSpecular));
+    scene->Push(new Sphere(glm::vec3(0.3, -0.6, -0.5)* Consts::SCALE, 0.4f * Consts::SCALE, GoldGlossy));
+    scene->Push(new Sphere(glm::vec3(0.5, -0.75, 0.7)* Consts::SCALE, 0.25f * Consts::SCALE, FrostedGlass));
 
 
     // Í¼Ïñ

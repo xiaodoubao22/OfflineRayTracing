@@ -20,7 +20,7 @@ private:
 	std::chrono::system_clock::time_point mCurrentTime;
 	std::mutex mPrintMutex;
 	int mNumPixels;
-	FILE* mSaveRayPath = nullptr;
+
 };
 
 #endif // !RANDERER_H

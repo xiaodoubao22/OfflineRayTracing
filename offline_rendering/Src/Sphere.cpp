@@ -27,7 +27,7 @@ HitResult Sphere::Intersect(Ray ray) {
 	float s = dot(L, D);
 	float lSquare = dot(L, L);
 
-	if (s < 0 && lSquare > mRadiusSquare - 0.0001) return res;
+	if (s < 0 && lSquare > mRadiusSquare - 0.0001f) return res;
 
 	float sSquare = s * s;
 	float mSquare = lSquare - sSquare;
@@ -38,7 +38,7 @@ HitResult Sphere::Intersect(Ray ray) {
 	float t1 = s - q;
 	float t2 = s + q;
 	float t = t1;
-	if (t1 < 0.0001) {
+	if (t1 < 0.0001f) {
 		t = t2;
 	}
 
