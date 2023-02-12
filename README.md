@@ -6,7 +6,7 @@
 
 ## 效果图
 
-![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/result.png)
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/show.png)
 
 ## 已实现特性
 
