@@ -32,11 +32,16 @@ BVH树、SAH加速、多线程加速
 
 ## 环境配置
 
-- 本项目需要用到三方库ASSIMP、GLM、SVPNG
+本项目需要用到三方库ASSIMP、GLM、SVPNG
+
+### ASSIMP
 - 下载assimp-5.2.5源码用CMake构建(64位)并用VS2022编译
 - 得到assimp-vc143-mt.lib放入目录"LearnRendering/third_party/Libs/assimp/"
 - 得到assimp-vc143-mt.dll放入目录"LearnRendering/third_party/Bin/assimp/"
 - 在ASSIMP的"assimp-5.2.5/include"目录下找到assimp文件夹放入目录"LearnRendering/third_party/Includes"
 - 在ASSIMP编译好后的"assimp-5.2.5/build/include/assimp"目录下找到config.h放入目录"LearnRendering/third_party/Includes/assimp"
+### GLM
+
+### SVPNG
 
 
