@@ -39,8 +39,8 @@ float Material::Fresnel(glm::vec3 wi, glm::vec3 normal, float ior) {
 
 glm::vec3 Material::LocalToWorld(glm::vec3 vec, glm::vec3 normal) {
 	float dotZToNormal = dot(Consts::Z_AXIS, normal);
-	if (dotZToNormal > 1.0 - Consts::EPS) return normal;
-	if (dotZToNormal < -1.0 + Consts::EPS) return -normal;
+	if (dotZToNormal > 1.0 - Consts::EPS) return vec;
+	if (dotZToNormal < -1.0 + Consts::EPS) return -vec;
 
 	float rotAngle = acos(std::clamp(dotZToNormal, -1.0f, 1.0f));
 	glm::vec3 rotAxis = glm::cross(Consts::Z_AXIS, normal);
@@ -48,5 +48,4 @@ glm::vec3 Material::LocalToWorld(glm::vec3 vec, glm::vec3 normal) {
 
 	glm::mat3 modelRot = glm::mat3(model);
 	return modelRot * vec;
-
 }

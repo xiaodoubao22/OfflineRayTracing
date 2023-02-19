@@ -10,67 +10,74 @@ MaterialTransparent::MaterialTransparent(float ior) : Material(TRANSPARENT) {
 	return;
 }
 
-bool MaterialTransparent::SampleAndEval(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf, glm::vec3& fr) {
-	float kr = Fresnel(wi, normal, mIor);
+bool MaterialTransparent::SampleAndEval(SampleData& data, TraceInfo info) {
+	float kr = Fresnel(data.wi, data.normal, mIor);
 	float rand = Utils::GetUniformRandom();
 	if (rand < kr) {
 		// reflect
-		if (dot(wi, normal) < 0.0f) {
-			wo = normalize(glm::reflect(wi, normal));
+		if (dot(data.wi, data.normal) < 0.0f) {
+			data.wo = normalize(glm::reflect(data.wi, data.normal));
 		}
 		else {
-			wo = normalize(glm::reflect(wi, -normal));
+			data.wo = normalize(glm::reflect(data.wi, -data.normal));
 		}
 		
-		pdf = 1.0f;
-		fr = glm::vec3(1.0f);
+		data.pdf = 1.0f;
+		data.frCosine = glm::vec3(1.0f);
 	}
 	else {
 		// refract
-		if (dot(wi, normal) < 0.0f) {
+		if (dot(data.wi, data.normal) < 0.0f) {
 			float eta = 1.0f / mIor;
-			wo = glm::refract(wi, normal, eta);
+			data.wo = glm::refract(data.wi, data.normal, eta);
 		}
 		else {
 			float eta = mIor;
-			wo = glm::refract(wi, -normal, eta);
+			data.wo = glm::refract(data.wi, -data.normal, eta);
 		}
-		wo = glm::normalize(wo);
-		pdf = 1.0f;
-		fr = glm::vec3(1.0f);
+		data.wo = glm::normalize(data.wo);
+		data.pdf = 1.0f;
+		data.frCosine = glm::vec3(1.0f);
 	}
 	return true;
 }
 
-bool MaterialTransparent::SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) {
+bool MaterialTransparent::SampleWithImportance(SampleData& data) {
 	return true;
 }
 
-glm::vec3 MaterialTransparent::Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) {
-	float dotNtoWi = dot(normal, wi);
-	float dotNtoWo = dot(normal, wo);
+void MaterialTransparent::Eval(SampleData& data) {
+	float dotNtoWi = dot(data.normal, data.wi);
+	float dotNtoWo = dot(data.normal, data.wo);
 	if (dotNtoWi * dotNtoWo > 0) {
 		// refract
 		glm::vec3 ht_N;
 		if (dotNtoWi > 0) {
-			ht_N = normalize(mIor * wi - wo);
+			ht_N = normalize(mIor * data.wi - data.wo);
 		}
 		else {
-			ht_N = normalize(wi - mIor * wo);
+			ht_N = normalize(data.wi - mIor * data.wo);
 		}
 
-		if (glm::length(ht_N - normal) < 0.5f) {
-			return glm::vec3(1.0f);
+		if (glm::length(ht_N - data.normal) < 0.5f) {
+			data.frCosine = glm::vec3(1.0f);
+			return;
 		}
 		
 	}
 	else {
 		// reflect
-		glm::vec3 halfVector = glm::normalize(-wi + wo);
-		if (glm::length(halfVector - normal) < 0.1f) {
-			return glm::vec3(1.0f);
+		glm::vec3 halfVector = glm::normalize(-data.wi + data.wo);
+		if (glm::length(halfVector - data.normal) < 0.1f) {
+			data.frCosine = glm::vec3(1.0f);
+			return;
 		}
 	}
 
-	return glm::vec3(0.0f);
+	data.frCosine = glm::vec3(0.0f);
+	return;
+}
+
+bool MaterialTransparent::IsExtremelySpecular(glm::vec2 texCoord) {
+	return true;
 }

@@ -10,32 +10,38 @@ MaterialSpecular::MaterialSpecular(glm::vec3 specularRate) : Material(SPECULAR) 
 	return;
 }
 
-bool MaterialSpecular::SampleAndEval(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf, glm::vec3& fr) {
-	float dotWiToNormal = dot(wi, normal);
+bool MaterialSpecular::SampleAndEval(SampleData& data, TraceInfo info) {
+	float dotWiToNormal = dot(data.wi, data.normal);
 	if (dotWiToNormal < 0.0f) {
-		wo = normalize(glm::reflect(wi, normal));
-		pdf = 1.0f;
-		fr = mSpecularRate;
+		data.wo = normalize(glm::reflect(data.wi, data.normal));
+		data.pdf = 1.0f;
+		data.frCosine = mSpecularRate;
 		return true;
 	}
 	return false;
 }
 
-bool MaterialSpecular::SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) {
-	if (dot(wi, normal) < 0.0f) {
-		wo = normalize(glm::reflect(wi, normal));
-		pdf = 1.0f;
+bool MaterialSpecular::SampleWithImportance(SampleData& data) {
+	if (dot(data.wi, data.normal) < 0.0f) {
+		data.wo = normalize(glm::reflect(data.wi, data.normal));
+		data.pdf = 1.0f;
 		return true;
 	}
 	return false;
 }
 
-glm::vec3 MaterialSpecular::Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) {
-	if (dot(wi, normal) <= 0.0f && dot(wo, normal) >= 0.0f) {
-		glm::vec3 halfVector = glm::normalize(-wi + wo);
-		if (glm::length(halfVector - normal) < 0.1f) {
-			return mSpecularRate;
+void MaterialSpecular::Eval(SampleData& data) {
+	if (dot(data.wi, data.normal) <= 0.0f && dot(data.wo, data.normal) >= 0.0f) {
+		glm::vec3 halfVector = glm::normalize(-data.wi + data.wo);
+		if (glm::length(halfVector - data.normal) < 0.1f) {
+			data.frCosine = mSpecularRate;
+			return;
 		}
 	}
-	return glm::vec3(0.0f);
+	data.frCosine = glm::vec3(0.0f);
+	return;
+}
+
+bool MaterialSpecular::IsExtremelySpecular(glm::vec2 texCoord) {
+	return true;
 }

@@ -14,10 +14,6 @@ BvhTree::~BvhTree() {
 
 }
 
-
-
-
-
 void BvhTree::Build(std::vector<Shape*>& shapes) {
 	mRoot = TraversalBuild(shapes);
 

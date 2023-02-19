@@ -5,6 +5,7 @@
 #include "Shape.h"
 #include "Mesh.h"
 #include "Utils.h"
+#include "TexureSampler.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -13,9 +14,15 @@
 class Scene {
 public:
 	std::vector<Shape*> mShapes;
+	std::vector<Material*> mMaterials;
+	std::vector<TexureSampler*> mTexures;
 
 public:
-	bool Push(Shape* shape);
+	Scene();
+	~Scene();
+	bool PushShape(Shape* shape);
+	bool PushMaterial(Material* material);
+	bool PushTexure(TexureSampler* texure);
 	HitResult GetIntersect(Ray ray);
 	bool SampleLight(float& pdf, HitResult& res);
 

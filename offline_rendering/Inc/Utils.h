@@ -10,33 +10,39 @@
 
 #include "assimp/scene.h"
 
-//#define SAVE_RAY
-//#define CLAMP_COLOR
+ //#define SAVE_RAY
+ #define CLAMP_COLOR
 
 namespace Consts {
     const float M_PI = 3.14159265350f;
     const float EPS = 0.00001f;
-    const int WIDTH = 400;
-    const int HEIGHT = 400;
+    const int WIDTH = 1440;
+    const int HEIGHT = 1440;
     const float FOVY = 40.0f;
-    const float SCALE = 1.0f;   // 用于测试模型放缩
+    const float SCALE = 200.0f;   // 用于测试模型放缩
     const glm::vec3 EYE(0, 0, 4.0f * SCALE);
-    const int SPP = 512;
+    const int SPP = 2048;
     const int THREAD_COUNT = 14;
     const float GAMA = 1.0f / 2.2f;
-    const glm::vec2 SAVE_RAY_COORD = glm::vec2(200, 250);
-    const int MAX_SAVE_DEPTH = 3;
+    const int MAX_TRACE_DEPTH = 10;
+
+    const glm::vec2 SAVE_RAY_COORD = glm::vec2(334, 325);
+    const int MAX_SAVE_DEPTH = 10;
+
     const glm::vec3 Z_AXIS = glm::vec3(0.0f, 0.0f, 1.0f);
     const glm::vec3 Y_AXIS = glm::vec3(0.0f, 1.0f, 0.0f);
+    
 }
 
 namespace Utils {
     float GetUniformRandom(float min = 0.0f, float max = 1.0f);
     glm::vec3 randomVec3();  // 单位球内的随机向量
     glm::vec3 randomDirection(glm::vec3 n);  // 法向半球随机向量
+    glm::vec3 RandomDirectionFromLDS(glm::vec3 n, float x, float y);
     inline float DegToRad(float deg);
     inline float RadToDeg(float rad);
     inline glm::vec3 AiVector3DToGlm(aiVector3D& aiVec);
+    inline glm::vec2 AiVector2DToGlm(aiVector2D& aiVec);
     inline glm::vec3 GlmVecMin(glm::vec3 a, glm::vec3 b);
     inline glm::vec3 GlmVecMin(glm::vec3 a, glm::vec3 b, glm::vec3 c);
     inline glm::vec3 GlmVecMax(glm::vec3 a, glm::vec3 b);
@@ -59,6 +65,10 @@ inline float Utils::RadToDeg(float rad) {
 
 inline glm::vec3 Utils::AiVector3DToGlm(aiVector3D& aiVec) {
     return glm::vec3(aiVec.x, aiVec.y, aiVec.z);
+}
+
+inline glm::vec2 Utils::AiVector2DToGlm(aiVector2D& aiVec) {
+    return glm::vec2(aiVec.x, aiVec.y);
 }
 
 inline glm::vec3 Utils::GlmVecMin(glm::vec3 a, glm::vec3 b) {
@@ -88,6 +98,12 @@ inline glm::vec3 Utils::Refract(glm::vec3 I, glm::vec3 N, float eta) {
 struct Ray {
     glm::vec3 origin = glm::vec3(0.0f);
     glm::vec3 direction = glm::vec3(0.0f);
+};
+
+struct TraceInfo {
+    bool saveRay = false;
+    int depth = 0;
+    int threadNum;
 };
 
 #endif // UTILS_H

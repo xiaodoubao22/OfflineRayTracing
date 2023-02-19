@@ -3,17 +3,14 @@
 
 #include "Utils.h"
 
-//class Material {
-//public:
-//	bool isEmission = false;
-//	glm::vec3 emission = glm::vec3(0.0f, 0.0f, 0.0f);
-//	glm::vec3 albedo = glm::vec3(0.0f, 0.0f, 0.0f);
-//	float specularRate = 0.0f;
-//	float roughness = 0.0f;
-//	float refractRate = 0.0f;
-//	float ior = 1.0f;
-//
-//};
+struct SampleData {
+	glm::vec3 wi = glm::vec3(0.0f);
+	glm::vec3 wo = glm::vec3(0.0f);
+	glm::vec3 normal = glm::vec3(0.0f);
+	glm::vec2 texCoord = glm::vec2(0.0f);
+	glm::vec3 frCosine = glm::vec3(0.0f);;	// frCosine = BRDF * cosine
+	float pdf = 0.0f;
+};
 
 enum MaterialType {
 	DEFUSE = 0,
@@ -26,6 +23,7 @@ enum MaterialType {
 class Material {
 public:
 	MaterialType mType;
+	bool mUseTexure = false;
 	bool mHasEmission = false;
 	glm::vec3 mEmissionRadiance = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -40,9 +38,10 @@ public:
 
 	// wo, wi from eye to scene
 	// fr = BRDF * cosine
-	virtual bool SampleAndEval(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf, glm::vec3& fr) = 0;
-	virtual bool SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) = 0;
-	virtual glm::vec3 Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) = 0;
+	virtual bool SampleAndEval(SampleData& data, TraceInfo info) = 0;
+	virtual bool SampleWithImportance(SampleData& data) = 0;
+	virtual void Eval(SampleData& data) = 0;
+	virtual bool IsExtremelySpecular(glm::vec2 texCoord) = 0;
 };
 
 #endif // !MATERIAL_H

@@ -1,4 +1,5 @@
 #include "MaterialDefuse.h"
+#include "LdsGenerator.h"
 
 MaterialDefuse::MaterialDefuse() : Material(DEFUSE) {
 	return;
@@ -9,12 +10,21 @@ MaterialDefuse::MaterialDefuse(glm::vec3 albedo) : Material(DEFUSE) {
 	return;
 }
 
-bool MaterialDefuse::SampleAndEval(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf, glm::vec3& fr) {
-	if (dot(wi, normal) < 0.0f) {
-		wo = Utils::randomDirection(normal);
-		pdf = 1.0f / (2.0f * Consts::M_PI);
-		float cosine = std::max(dot(wo, normal), 0.0f);
-		fr = mAlbedo / Consts::M_PI * cosine;
+MaterialDefuse::MaterialDefuse(TexureSampler3F* albedoTexure) : Material(DEFUSE) {
+	mUseTexure = true;
+	mAlbedoTexure = albedoTexure;
+}
+
+bool MaterialDefuse::SampleAndEval(SampleData& data, TraceInfo info) {
+	if (dot(data.wi, data.normal) < 0.0f) {
+		float x = LdsGenerator::GetInstance()->Get(info.depth * 2, info.threadNum);
+		float y = LdsGenerator::GetInstance()->Get(info.depth * 2 + 1, info.threadNum);
+		data.wo = Utils::RandomDirectionFromLDS(data.normal, x, y);
+		//wo = Utils::randomDirection(normal);
+		data.pdf = 1.0f / (2.0f * Consts::M_PI);
+		float cosine = std::max(dot(data.wo, data.normal), 0.0f);
+		glm::vec3 albedo = mUseTexure ? mAlbedoTexure->Sample(data.texCoord) : mAlbedo;
+		data.frCosine = albedo / Consts::M_PI * cosine;
 		return true;
 	}
 
@@ -22,15 +32,23 @@ bool MaterialDefuse::SampleAndEval(const glm::vec3& normal, const glm::vec3& wi,
 
 }
 
-bool MaterialDefuse::SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) {
+bool MaterialDefuse::SampleWithImportance(SampleData& data) {
 	return false;
 }
 
-glm::vec3 MaterialDefuse::Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) {
-	float dotWiToNormal = dot(wi, normal);
-	float dotWoToNormal = dot(wo, normal);
+void MaterialDefuse::Eval(SampleData& data) {
+	float dotWiToNormal = dot(data.wi, data.normal);
+	float dotWoToNormal = dot(data.wo, data.normal);
 	if (dotWiToNormal < 0.0f && dotWoToNormal > 0.0f) {
-		return mAlbedo / Consts::M_PI * dotWoToNormal;
+		glm::vec3 albedo = mUseTexure ? mAlbedoTexure->Sample(data.texCoord) : mAlbedo;
+		data.frCosine = albedo / Consts::M_PI * dotWoToNormal;
+		return;
 	}
-	return glm::vec3(0.0f);
+	data.frCosine = glm::vec3(0.0f);
+	return;
+}
+
+
+bool MaterialDefuse::IsExtremelySpecular(glm::vec2 texCoord) {
+	return false;
 }

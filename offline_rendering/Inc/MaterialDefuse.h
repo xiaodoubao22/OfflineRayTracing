@@ -2,19 +2,23 @@
 #define MATERIAL_DEFUSE
 
 #include "Material.h"
+#include "TexureSampler.h"
 
 class MaterialDefuse : public Material
 {
 public:
 	glm::vec3 mAlbedo = glm::vec3(0.0f, 0.0f, 0.0f);
+	TexureSampler3F* mAlbedoTexure = nullptr;
 
 public:
 	MaterialDefuse();
 	explicit MaterialDefuse(glm::vec3 albedo);
+	explicit MaterialDefuse(TexureSampler3F* albedoTexure);
 
-	virtual bool SampleAndEval(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf, glm::vec3& fr) override;
-	virtual bool SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) override;
-	virtual glm::vec3 Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) override;
+	virtual bool SampleAndEval(SampleData& data, TraceInfo info) override;
+	virtual bool SampleWithImportance(SampleData& data) override;
+	virtual void Eval(SampleData& data) override;
+	bool IsExtremelySpecular(glm::vec2 texCoord) override;
 };
 
 

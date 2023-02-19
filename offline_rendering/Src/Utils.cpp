@@ -27,3 +27,17 @@ glm::vec3 Utils::randomDirection(glm::vec3 n)
     }
     return randVec;
 }
+
+glm::vec3 Utils::RandomDirectionFromLDS(glm::vec3 n, float x, float y)
+{
+    float z = 2.0 * (x - 0.5f);
+    float phi = y * 2 * Consts::M_PI;
+    float r = std::sqrt(1.0f - z * z);
+    glm::vec3 randVec = glm::vec3(r * std::cos(phi), r * std::sin(phi), z);
+
+    float dotNToRandVec = dot(n, randVec);
+    if (dotNToRandVec < 0) {
+        randVec = randVec + dotNToRandVec * n;
+    }
+    return randVec;
+}

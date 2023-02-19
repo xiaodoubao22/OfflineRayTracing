@@ -7,6 +7,7 @@ Mesh::Mesh(aiMesh* assImpMesh, Material* material) {
 	mMaterial = material;
 	mTriangles.clear();
 	mBound = new BoundingBox;
+
 	for (unsigned int cntFace = 0; cntFace < assImpMesh->mNumFaces; cntFace++) {
 		aiFace face = assImpMesh->mFaces[cntFace];
 
@@ -14,11 +15,25 @@ Mesh::Mesh(aiMesh* assImpMesh, Material* material) {
 		unsigned int ind1 = face.mIndices[1];
 		unsigned int ind2 = face.mIndices[2];
 			
-		glm::vec3 p0 = Utils::AiVector3DToGlm(assImpMesh->mVertices[ind0]);
-		glm::vec3 p1 = Utils::AiVector3DToGlm(assImpMesh->mVertices[ind1]);
-		glm::vec3 p2 = Utils::AiVector3DToGlm(assImpMesh->mVertices[ind2]);
+		glm::vec3 p0 = Utils::AiVector3DToGlm(assImpMesh->mVertices[ind0]) - glm::vec3(0.0f, 40.0f, 0.0f);
+		glm::vec3 p1 = Utils::AiVector3DToGlm(assImpMesh->mVertices[ind1]) - glm::vec3(0.0f, 40.0f, 0.0f);
+		glm::vec3 p2 = Utils::AiVector3DToGlm(assImpMesh->mVertices[ind2]) - glm::vec3(0.0f, 40.0f, 0.0f);
 
-		Triangle* triangle = new Triangle(p0, p1, p2, mMaterial);
+		glm::vec3 n0 = Utils::AiVector3DToGlm(assImpMesh->mNormals[ind0]);
+		glm::vec3 n1 = Utils::AiVector3DToGlm(assImpMesh->mNormals[ind1]);
+		glm::vec3 n2 = Utils::AiVector3DToGlm(assImpMesh->mNormals[ind2]);
+
+		Triangle* triangle = nullptr;
+		if (assImpMesh->mTextureCoords[0]) {
+			glm::vec2 t0(assImpMesh->mTextureCoords[0][ind0].x, assImpMesh->mTextureCoords[0][ind0].y);
+			glm::vec2 t1(assImpMesh->mTextureCoords[0][ind1].x, assImpMesh->mTextureCoords[0][ind1].y);
+			glm::vec2 t2(assImpMesh->mTextureCoords[0][ind2].x, assImpMesh->mTextureCoords[0][ind2].y);
+			triangle = new Triangle(p0, p1, p2, n0, n1, n2, t0, t1, t2, mMaterial);
+		}
+		else {
+			triangle = new Triangle(p0, p1, p2, n0, n1, n2, mMaterial);
+		}
+		
 		mTriangles.push_back(triangle);
 		mBound->Union(*triangle->GetBoundingBox());
 	}

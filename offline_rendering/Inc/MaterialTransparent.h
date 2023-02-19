@@ -10,9 +10,10 @@ public:
 public:
 	MaterialTransparent();
 	explicit MaterialTransparent(float ior);
-	virtual bool SampleAndEval(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf, glm::vec3& fr) override;
-	virtual bool SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) override;
-	virtual glm::vec3 Eval(const glm::vec3& normal, const glm::vec3& wi, const glm::vec3& wo) override;
+	virtual bool SampleAndEval(SampleData& data, TraceInfo info) override;
+	virtual bool SampleWithImportance(SampleData& data) override;
+	virtual void Eval(SampleData& data) override;
+	bool IsExtremelySpecular(glm::vec2 texCoord) override;
 };
 
 

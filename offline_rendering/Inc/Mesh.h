@@ -20,6 +20,8 @@ public:
 public:
 	std::vector<Shape*> mTriangles;
 	BvhTree mBvhTree;
+
+	glm::mat4 mModelMatrix;
 };
 
 
