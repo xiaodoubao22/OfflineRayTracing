@@ -2,9 +2,9 @@ build/
 
 # third_party
 third_party/
-!third_party/Includes
-!third_party/Libs
-!third_party/Bin
+!third_party/Includes/
+!third_party/Libs/
+!third_party/Bin/
 
 # models
 models/
