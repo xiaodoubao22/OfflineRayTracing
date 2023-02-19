@@ -23,43 +23,28 @@ Triangle::Triangle(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2, Material* material)
 
 HitResult Triangle::Intersect(Ray ray) {
 	HitResult res;
+	
+	glm::vec3 E1 = mP1 - mP0;
+	glm::vec3 E2 = mP2 - mP0;
+	glm::vec3 Q = cross(ray.direction, E2);
 
-	glm::vec3 D = ray.direction;
-	glm::vec3 S = ray.origin;
-	glm::vec3 N = mNormal;
+	float a = dot(E1, Q);
+	if (abs(a) < 0.00001f) return res;
 
-	float dotTtoD = dot(N, D);
-	if (dotTtoD > 0.0f) {
-		// 保证法向量与光线方向相反
-		N = -N;
-	}
+	float f = 1.0f / a;
+	glm::vec3 S = ray.origin - mP0;
+	float u = f * dot(S, Q);
+	if (u < 0.0) return res;
 
-	// 光线与三角形平行
-	if (fabs(dotTtoD) < Consts::EPS) {
-		res.isHit = 2;
-		return res;
-	}
+	glm::vec3 R = cross(S, E1);
+	float v = f * dot(ray.direction, R);
+	if (v < 0.0f || u + v > 1.0f) return res;
 
-	float t = (dot(N, mP0) - dot(S, N)) / dot(D, N);
+	float t = f * dot(E2, R);
+	if (t < 0.0001f) return res;
 
-	// 交点在射线反方向
-	if (t < 0.01) {
-		res.isHit = 3;
-		return res;
-	}
-
-	glm::vec3 P = S + t * D;
-
-	// 判断交点在三角形内
-	glm::vec3 c1 = cross(mP1 - mP0, P - mP0);
-	glm::vec3 c2 = cross(mP2 - mP1, P - mP1);
-	glm::vec3 c3 = cross(mP0 - mP2, P - mP2);
-
-	if (dot(c1, mNormal) < 0 || dot(c2, mNormal) < 0 || dot(c3, mNormal) < 0) return res;
-
-	// 返回结果
 	res.isHit = 1;
-	res.hitPoint = P;
+	res.hitPoint = ray.origin + t * ray.direction;
 	res.distance = t;
 	res.material = mMaterial;
 	res.normal = mNormal;

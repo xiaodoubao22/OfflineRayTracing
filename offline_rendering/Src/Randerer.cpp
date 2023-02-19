@@ -3,7 +3,9 @@
 
 
 void Randerer::Draw(float* image, Scene& scene) {
+#ifdef SAVE_RAY
     Utils::mSaveRayPath = fopen("../scripts/SaveRay/Rays.txt", "wb");
+#endif // SAVE_RAY
 
     mInitTime = std::chrono::system_clock::now();
     mNumPixels = 0;
@@ -33,7 +35,9 @@ void Randerer::Draw(float* image, Scene& scene) {
     std::cout << std::endl;
     std::cout << "rander time cost: " << hours % 60 << ":" << minutes % 60 << ":" << seconds % 60 << ":" << milliseconds % 1000 << std::endl;
 
+#ifdef SAVE_RAY
     fclose(Utils::mSaveRayPath);
+#endif // SAVE_RAY
 
 }
 
@@ -50,7 +54,7 @@ void Randerer::DrawPart(float* framebuffer, Scene& scene, int startRow, int numR
     {
         for (int j = 0; j < Consts::WIDTH; j++)
         {
-            bool saveRayFlag = i == 287 && j == 288;
+            bool saveRayFlag = i == Consts::SAVE_RAY_COORD.y && j == Consts::SAVE_RAY_COORD.x;
             glm::vec3 L(0.0f);
             for (int k = 0; k < Consts::SPP; k++)
             {
@@ -69,7 +73,11 @@ void Randerer::DrawPart(float* framebuffer, Scene& scene, int startRow, int numR
                 
                 // 投射光线
                 glm::vec3 color = CastRay(scene, ray, saveRayFlag);
-                //glm::vec3 color = PathTracing(scene, ray);
+#ifdef CLAMP_COLOR
+                color.x = std::clamp(color.x, 0.0f, 100.0f);
+                color.y = std::clamp(color.y, 0.0f, 100.0f);
+                color.z = std::clamp(color.z, 0.0f, 100.0f);
+#endif // CLAMP_COLOR
                 L += color;
             }
             L = L / float(Consts::SPP);
@@ -102,10 +110,12 @@ glm::vec3 Randerer::CastRay(Scene& scene, Ray ray, bool saveRay) {
             color = res.material->GetEmission();
         }
         else {
+#ifdef SAVE_RAY
             if (saveRay) {
-                fprintf(Utils::mSaveRayPath, "%.6f %.6f %.6f %.6f %.6f %.6f 0\n", ray.origin.x, ray.origin.y, ray.origin.z,
+                fprintf(Utils::mSaveRayPath, "ray %.6f %.6f %.6f %.6f %.6f %.6f 0 0\n", ray.origin.x, ray.origin.y, ray.origin.z,
                     res.hitPoint.x, res.hitPoint.y, res.hitPoint.z);
             }
+#endif // SAVE_RAY
             color = Shade(scene, ray, res, 0, saveRay);
         }
     }
@@ -148,7 +158,7 @@ glm::vec3 Randerer::Shade(Scene& scene, Ray ray, HitResult p, int depth, bool sa
             glm::vec3 fr = p.material->Eval(p.normal, normalize(ray.direction), lightDir_N);
             glm::vec3 Li = sampLightResult.material->GetEmission();
             float pntToLightSquare = dot(lightDir, lightDir);
-            Ldir = Li * fr * abs(cosTheta) * cosTheta_P / pntToLightSquare / pdfLight;
+            Ldir = Li * fr * abs(cosTheta) * cosTheta_P / (pntToLightSquare * pdfLight + Consts::EPS);
         }
     }
     else {
@@ -160,7 +170,7 @@ glm::vec3 Randerer::Shade(Scene& scene, Ray ray, HitResult p, int depth, bool sa
         bool ret = p.material->SampleAndEval(p.normal, normalize(ray.direction), traceRay.direction, pdf, fr);
         HitResult traceResult = scene.GetIntersect(traceRay);
         if (traceResult.isHit == 1 && traceResult.material->HasEmission() && ret) {
-            Lindir = traceResult.material->GetEmission() * fr / pdf;
+            Lindir = traceResult.material->GetEmission() * fr / (pdf + Consts::EPS);
         }
     }
     //return Ldir;
@@ -174,6 +184,12 @@ glm::vec3 Randerer::Shade(Scene& scene, Ray ray, HitResult p, int depth, bool sa
         traceRay.origin = p.hitPoint;
         float pdf;
         glm::vec3 fr;
+#ifdef SAVE_RAY
+        if (saveRay && depth < Consts::MAX_SAVE_DEPTH) {
+            fprintf(Utils::mSaveRayPath, "norm %.6f %.6f %.6f %.6f %.6f %.6f %d\n", p.hitPoint.x, p.hitPoint.y, p.hitPoint.z,
+                p.normal.x, p.normal.y, p.normal.z, depth);
+        }
+#endif // SAVE_RAY
         bool ret = p.material->SampleAndEval(p.normal, ray.direction, traceRay.direction, pdf, fr);
 
         // 与场景求交
@@ -181,14 +197,14 @@ glm::vec3 Randerer::Shade(Scene& scene, Ray ray, HitResult p, int depth, bool sa
 
         if (traceResult.isHit == 1 && !traceResult.material->HasEmission() && ret) {
             if (transparentSurface || dot(p.normal, traceRay.direction) > Consts::EPS) {
-                if (saveRay /*&& depth < 3*/) {
-                    fprintf(Utils::mSaveRayPath, "%.6f %.6f %.6f\n", p.hitPoint.x, p.hitPoint.y, p.hitPoint.z);
-                    fprintf(Utils::mSaveRayPath, "%.6f %.6f %.6f %.6f %.6f %.6f 0\n", traceRay.origin.x, traceRay.origin.y, traceRay.origin.z,
-                        traceResult.hitPoint.x, traceResult.hitPoint.y, traceResult.hitPoint.z);
-                    //fprintf(Utils::mSaveRayPath, "%.6f %.6f %.6f %.6f %.6f %.6f 1\n", p.hitPoint.x, p.hitPoint.y, p.hitPoint.z,
-                    //    p.hitPoint.x + p.normal.x, p.hitPoint.y + p.normal.y, p.hitPoint.z + p.normal.z);
+#ifdef SAVE_RAY
+                if (saveRay && depth < Consts::MAX_SAVE_DEPTH) {
+                    fprintf(Utils::mSaveRayPath, "pnt %.6f %.6f %.6f %d\n", p.hitPoint.x, p.hitPoint.y, p.hitPoint.z, depth);
+                    fprintf(Utils::mSaveRayPath, "ray %.6f %.6f %.6f %.6f %.6f %.6f 0 %d\n", traceRay.origin.x, traceRay.origin.y, traceRay.origin.z,
+                        traceResult.hitPoint.x, traceResult.hitPoint.y, traceResult.hitPoint.z, depth);
                 }
-                Lindir = Shade(scene, traceRay, traceResult, depth, saveRay) * fr / pdf / PRR;
+#endif // SAVE_RAY
+                Lindir = Shade(scene, traceRay, traceResult, depth, saveRay) * fr / (pdf * PRR + Consts::EPS);
             }
         }
     }

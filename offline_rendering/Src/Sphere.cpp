@@ -27,7 +27,7 @@ HitResult Sphere::Intersect(Ray ray) {
 	float s = dot(L, D);
 	float lSquare = dot(L, L);
 
-	if (s < 0 && lSquare > mRadiusSquare - 0.0001f) return res;
+	if (s < 0 && lSquare > mRadiusSquare) return res;
 
 	float sSquare = s * s;
 	float mSquare = lSquare - sSquare;
@@ -41,14 +41,22 @@ HitResult Sphere::Intersect(Ray ray) {
 	if (t1 < 0.0001f) {
 		t = t2;
 	}
+	if (t < 0.0001f) {
+		return res;
+	}
 
 	glm::vec3 P = O + t * D;
+
+	//if (dot(glm::normalize(P - mCenter), ray.direction) > 0) return res;
 
 	res.isHit = 1;
 	res.distance = t;
 	res.hitPoint = P;
 	res.normal = glm::normalize(P - mCenter);
 	res.material = mMaterial;
+
+	
+
 
 	return res;
 }

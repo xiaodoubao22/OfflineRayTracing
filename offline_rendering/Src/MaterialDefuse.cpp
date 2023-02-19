@@ -23,11 +23,6 @@ bool MaterialDefuse::SampleAndEval(const glm::vec3& normal, const glm::vec3& wi,
 }
 
 bool MaterialDefuse::SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) {
-	if (dot(wi, normal) < 0.0f) {
-		wo = Utils::randomDirection(normal);
-		pdf = 1.0f / (2.0f * Consts::M_PI);
-		return true;
-	}
 	return false;
 }
 

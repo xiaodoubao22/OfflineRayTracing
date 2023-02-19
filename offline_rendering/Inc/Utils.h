@@ -10,18 +10,24 @@
 
 #include "assimp/scene.h"
 
+//#define SAVE_RAY
+//#define CLAMP_COLOR
+
 namespace Consts {
     const float M_PI = 3.14159265350f;
     const float EPS = 0.00001f;
     const int WIDTH = 400;
     const int HEIGHT = 400;
     const float FOVY = 40.0f;
-    const float SCALE = 4.0f;   // 用于测试模型放缩
-    //const glm::vec3 EYE(278.0f, 273.0f, 800.0f);
+    const float SCALE = 1.0f;   // 用于测试模型放缩
     const glm::vec3 EYE(0, 0, 4.0f * SCALE);
-    const int SPP = 2048;
+    const int SPP = 512;
     const int THREAD_COUNT = 14;
     const float GAMA = 1.0f / 2.2f;
+    const glm::vec2 SAVE_RAY_COORD = glm::vec2(200, 250);
+    const int MAX_SAVE_DEPTH = 3;
+    const glm::vec3 Z_AXIS = glm::vec3(0.0f, 0.0f, 1.0f);
+    const glm::vec3 Y_AXIS = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 namespace Utils {
@@ -37,7 +43,10 @@ namespace Utils {
     inline glm::vec3 GlmVecMax(glm::vec3 a, glm::vec3 b, glm::vec3 c);
     inline glm::vec3 Refract(glm::vec3 I, glm::vec3 N, float eta);
 
+#ifdef SAVE_RAY
     static FILE* mSaveRayPath = nullptr;
+#endif // SAVE_RAY
+    
 };
 
 inline float Utils::DegToRad(float deg) {

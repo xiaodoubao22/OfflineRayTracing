@@ -17,30 +17,36 @@ glm::vec3 Material::GetEmission() {
 }
 
 float Material::Fresnel(glm::vec3 wi, glm::vec3 normal, float ior) {
-	float dotWiTonormalormal = dot(wi, normal);
-	float etaI = 1.0f, etaT = ior;		// dotWiTonormalormal < 0
-	if (dotWiTonormalormal > 0) {
-		std::swap(etaI, etaT);			// dotWiTonormalormal > 0
+	float dotWiTonormal = std::clamp(dot(wi, normal), -1.0f, 1.0f);
+	float etaI = 1.0f, etaT = ior;		// dotWiTonormal < 0
+	if (dotWiTonormal > 0) {
+		std::swap(etaI, etaT);			// dotWiTonormal > 0
 	}
 
-	float sinI = sqrtf(std::max(0.0f, 1 - dotWiTonormalormal * dotWiTonormalormal));
+	float sinI = sqrtf(std::max(0.0f, 1.0f - dotWiTonormal * dotWiTonormal));
 	float sinT = etaI / etaT * sinI;
 
 	float kr = 1.0f;
 	if (sinT < 1.0f) {
 		float cosT = sqrtf(std::max(0.f, 1 - sinT * sinT));
-		float cosI = abs(dotWiTonormalormal);
+		float cosI = abs(dotWiTonormal);
 		float Rs = ((etaT * cosI) - (etaI * cosT)) / ((etaT * cosI) + (etaI * cosT));
 		float Rp = ((etaI * cosI) - (etaT * cosT)) / ((etaI * cosI) + (etaT * cosT));
-		kr = (Rs * Rs + Rp * Rp) / 2;
+		kr = (Rs * Rs + Rp * Rp) / 2.0f;
 	}
 	return kr;
 }
 
 glm::vec3 Material::LocalToWorld(glm::vec3 vec, glm::vec3 normal) {
-	glm::vec3 axisLocX = cross(glm::vec3(0.0f, 0.0f, 1.0f), normal);
-	glm::vec3 axisLocY = cross(normal, axisLocX);
-	glm::mat3 rot = glm::mat3(glm::lookAtRH(glm::vec3(0.0f), -normal, axisLocY));
+	float dotZToNormal = dot(Consts::Z_AXIS, normal);
+	if (dotZToNormal > 1.0 - Consts::EPS) return normal;
+	if (dotZToNormal < -1.0 + Consts::EPS) return -normal;
 
-	return glm::transpose(rot) * vec;
+	float rotAngle = acos(std::clamp(dotZToNormal, -1.0f, 1.0f));
+	glm::vec3 rotAxis = glm::cross(Consts::Z_AXIS, normal);
+	glm::mat4 model = glm::rotate(glm::mat4(1.0f), rotAngle, rotAxis);
+
+	glm::mat3 modelRot = glm::mat3(model);
+	return modelRot * vec;
+
 }

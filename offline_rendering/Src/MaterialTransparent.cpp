@@ -15,7 +15,13 @@ bool MaterialTransparent::SampleAndEval(const glm::vec3& normal, const glm::vec3
 	float rand = Utils::GetUniformRandom();
 	if (rand < kr) {
 		// reflect
-		wo = glm::reflect(wi, normal);
+		if (dot(wi, normal) < 0.0f) {
+			wo = normalize(glm::reflect(wi, normal));
+		}
+		else {
+			wo = normalize(glm::reflect(wi, -normal));
+		}
+		
 		pdf = 1.0f;
 		fr = glm::vec3(1.0f);
 	}
@@ -37,18 +43,6 @@ bool MaterialTransparent::SampleAndEval(const glm::vec3& normal, const glm::vec3
 }
 
 bool MaterialTransparent::SampleWithImportance(const glm::vec3& normal, const glm::vec3& wi, glm::vec3& wo, float& pdf) {
-	float kr = Fresnel(wi, normal, mIor);
-	float rand = Utils::GetUniformRandom();
-	if (rand < kr) {
-		// reflect
-		wo = glm::reflect(wi, normal);
-		pdf = 1.0f;
-	}
-	else {
-		// refract
-		wo = glm::refract(wi, normal, 1.0f / mIor);
-		pdf = 1.0f;
-	}
 	return true;
 }
 
@@ -66,7 +60,6 @@ glm::vec3 MaterialTransparent::Eval(const glm::vec3& normal, const glm::vec3& wi
 		}
 
 		if (glm::length(ht_N - normal) < 0.5f) {
-			//float kr = Fresnel(wi, normal, mIor);
 			return glm::vec3(1.0f);
 		}
 		
@@ -75,7 +68,6 @@ glm::vec3 MaterialTransparent::Eval(const glm::vec3& normal, const glm::vec3& wi
 		// reflect
 		glm::vec3 halfVector = glm::normalize(-wi + wo);
 		if (glm::length(halfVector - normal) < 0.1f) {
-			//float kr = Fresnel(wi, normal, mIor);
 			return glm::vec3(1.0f);
 		}
 	}
