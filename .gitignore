@@ -1,15 +1,8 @@
 build/
-
-# third_party
 third_party/
-!third_party/Includes/
-!third_party/Libs/
-!third_party/Bin/
 
 # models
-models/
-!models/.gitkeep
+!models/README.md
 
 # result
-result/
-!result/.gitkeep
+!result/README.md
