@@ -1,2 +1,10 @@
 build/
 third_party/
+
+# models
+models/
+!models/.gitkeep
+
+# result
+result/
+!result/.gitkeep
