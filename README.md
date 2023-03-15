@@ -6,7 +6,11 @@
 
 ## 效果图
 
-![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/show.png)
+### MicroFacet模型实现毛玻璃材质
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res1.png)
+
+### 环境光IBL
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res2.png)
 
 ## 已实现特性
 
@@ -35,13 +39,17 @@ BVH树、SAH加速、多线程加速
 本项目需要用到三方库ASSIMP、GLM、SVPNG
 
 ### ASSIMP
+
 - 下载assimp-5.2.5源码用CMake构建(64位)并用VS2022编译
+
 - 得到assimp-vc143-mt.lib放入目录"LearnRendering/third_party/Libs/assimp/"
+
 - 得到assimp-vc143-mt.dll放入目录"LearnRendering/third_party/Bin/assimp/"
+
 - 在ASSIMP的"assimp-5.2.5/include"目录下找到assimp文件夹放入目录"LearnRendering/third_party/Includes"
+
 - 在ASSIMP编译好后的"assimp-5.2.5/build/include/assimp"目录下找到config.h放入目录"LearnRendering/third_party/Includes/assimp"
-### GLM
+  
+  ### GLM
 
 ### SVPNG
-
-
