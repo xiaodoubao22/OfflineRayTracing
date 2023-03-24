@@ -6,10 +6,12 @@
 
 ## 效果图
 
-### MicroFacet模型实现毛玻璃材质
+### MicroFacet模型实现透明玻璃、磨砂玻璃、磨砂金属材质
+
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res1.png)
 
-### 环境光IBL
+### 相同模型采用不同的环境光HDR贴图（spp=1024）
+
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res2.png)
 
 ## 已实现特性
@@ -36,20 +38,33 @@ BVH树、SAH加速、多线程加速
 
 ## 环境配置
 
-本项目需要用到三方库ASSIMP、GLM、SVPNG
+本项目可用MinGW或MSVC编译，用到了三方库：ASSIMP、GLM、stb、Qt、Vulkan
 
-### ASSIMP
+### Qt、Vulkan
 
-- 下载assimp-5.2.5源码用CMake构建(64位)并用VS2022编译
+正常从官网下载安装即可，建议Qt版本为5.14.2，建议安装Qt同时把MinGW选上
 
-- 得到assimp-vc143-mt.lib放入目录"LearnRendering/third_party/Libs/assimp/"
+### 其他三方库
 
-- 得到assimp-vc143-mt.dll放入目录"LearnRendering/third_party/Bin/assimp/"
+将其他三方库按要求放入third_party文件夹即可
+ASSIMP建议用5.1.6
 
-- 在ASSIMP的"assimp-5.2.5/include"目录下找到assimp文件夹放入目录"LearnRendering/third_party/Includes"
+- third_party/assimp-5.1.6-mingw/include ASSIMP的头文件目录
 
-- 在ASSIMP编译好后的"assimp-5.2.5/build/include/assimp"目录下找到config.h放入目录"LearnRendering/third_party/Includes/assimp"
-  
-  ### GLM
+- third_party/assimp-5.1.6-mingw/lib ASSIMP的静态库目录放于此目录
 
-### SVPNG
+- third_party/assimp-5.1.6-mingw/bin ASSIMP的动态库目录放于此目录
+
+- third_party/glm GLM的目录
+
+- third_party/stb stb的目录
+
+### 编译配置
+
+scrips文件夹中为构建和编译脚本
+
+- env_comfig.bat 环境配置文件，按照其中注释的要求修改目录即可
+- build_debug_mingw.bat 用MinGW构建并编译Debug版本
+- build_release_mingw.bat 用MinGW构建并编译Release版本
+- build_sln.bat 用MSVC 17构建VS工程
+- 其余脚本正在开发中，敬请期待
