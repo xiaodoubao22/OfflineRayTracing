@@ -2,8 +2,9 @@ build/
 third_party/
 
 # models
-models/
 !models/README.md
+models/
+
 
 # result
 result/
