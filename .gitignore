@@ -8,3 +8,6 @@ models/
 # result
 result/
 !result/README.md
+
+# vscode
+.vscode/
