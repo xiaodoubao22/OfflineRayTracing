@@ -22,6 +22,7 @@ if __name__ == '__main__':
     drawSphere(ax, 0.25, 0.55, -0.75, 0.7)
 
     f = open("./SaveRay/Rays.txt")
+    print("open")
     lines = f.readlines()
     for line in lines:
         strs = line.split()

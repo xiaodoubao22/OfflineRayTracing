@@ -11,3 +11,8 @@ result/
 
 # vscode
 .vscode/
+
+# tools
+tools/SaveBounds
+tools/SaveRay
+
