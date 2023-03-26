@@ -11,7 +11,7 @@ void Randerer::SetViewMatrix(glm::mat4 view) {
 
 void Randerer::Draw(float* image, Scene& scene) {
 #ifdef SAVE_RAY
-    Utils::mSaveRayPath = fopen("../scripts/SaveRay/Rays.txt", "wb");
+    Utils::mSaveRayPath = fopen("../../tools/SaveRay/Rays.txt", "wb");
 #endif // SAVE_RAY
 
     mInitTime = std::chrono::system_clock::now();

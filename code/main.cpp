@@ -92,7 +92,7 @@ int main() {
     scene->PushTexure(tWorldRoughnessInv);
 
     stbi_set_flip_vertically_on_load(true);
-    texBuffer = stbi_loadf("../../models/sphere/LA_Downtown_Helipad_GoldenHour_3k.hdr", &width, &height, &nrChannels, 0);
+    texBuffer = stbi_loadf("../../models/sphere/Alexs_Apt_2k.hdr", &width, &height, &nrChannels, 0);
     SphericalMap* enviromentLightMap = new SphericalMap(texBuffer, width, height);
     scene->PushmLightMap(enviromentLightMap);
 

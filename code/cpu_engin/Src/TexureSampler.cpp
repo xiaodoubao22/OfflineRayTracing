@@ -75,7 +75,7 @@ glm::vec3 SphericalMap::Sample(glm::vec3 direction) {
 	float pitch = asinf(direction.z);
 	float yaw = -atan2f(direction.y, direction.x);
 
-	float texCoordX = 0.5f * yaw / Consts::PI + 0.5;
+	float texCoordX = 0.5f * yaw / Consts::PI + 0.5f;
 	float texCoordY = pitch / Consts::PI + 0.5f;
 
 	return mLightMap.Sample(glm::vec2(texCoordX, texCoordY));

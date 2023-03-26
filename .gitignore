@@ -8,3 +8,11 @@ models/
 # result
 result/
 !result/README.md
+
+# vscode
+.vscode/
+
+# tools
+tools/SaveBounds
+tools/SaveRay
+
