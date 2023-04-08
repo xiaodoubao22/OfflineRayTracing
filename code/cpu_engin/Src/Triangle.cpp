@@ -42,7 +42,7 @@ HitResult Triangle::Intersect(Ray ray) {
 	glm::vec3 Q = cross(ray.direction, E2);
 
 	float a = dot(E1, Q);
-	if (abs(a) < Consts::SCALE * 0.00001f) return res;
+	if (abs(a) < 0.001) return res;
 
 	float f = 1.0f / a;
 	glm::vec3 S = ray.origin - mP[0];
@@ -54,7 +54,7 @@ HitResult Triangle::Intersect(Ray ray) {
 	if (v < 0.0f || u + v > 1.0f) return res;
 
 	float t = f * dot(E2, R);
-	if (t < Consts::SCALE * 0.00001f) return res;
+	if (t < 0.001) return res;
 
 	res.isHit = 1;
 	res.hitPoint = ray.origin + t * ray.direction;

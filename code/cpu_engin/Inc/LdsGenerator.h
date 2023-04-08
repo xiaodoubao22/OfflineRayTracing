@@ -8,7 +8,7 @@ class LdsGenerator
 public:
 	LdsGenerator();
 	static LdsGenerator* GetInstance();
-	void Build(int dim, std::vector<uint32_t>& a, std::vector<std::vector<uint32_t>>& m);
+	void Build(int threadCount, int dim, std::vector<uint32_t>& a, std::vector<std::vector<uint32_t>>& m);
 	float Get(int dim, int thread);
 	void Reset();
 	void Reset(int dim, int thread);

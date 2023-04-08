@@ -6,10 +6,17 @@
 #include "Mesh.h"
 #include "Utils.h"
 #include "TexureSampler.h"
+#include "Camera.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+struct CpuEnginConfig {
+	uint32_t spp = 16;
+	uint32_t threadCount = 8;
+	uint32_t maxTraceDepth = 10;
+};
 
 class Scene {
 public:
@@ -18,7 +25,8 @@ public:
 	std::vector<Material*> mMaterials;
 	std::vector<TexureSampler*> mTexures;
 	SphericalMap* mLightMap = nullptr;
-	glm::mat4 mViewmatrix = glm::mat4(1.0f);
+	CpuEngin::Camera mCamera;
+	CpuEnginConfig mConfigInfo;
 
 public:
 	Scene();

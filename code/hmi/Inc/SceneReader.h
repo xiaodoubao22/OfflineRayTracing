@@ -8,6 +8,9 @@
 #include "TexureSampler.h"
 #include "MaterialSet.h"
 
+namespace Hmi
+{
+    
 class SceneReader 
 {
 public:
@@ -23,7 +26,8 @@ private:
     int ProcessTexure(const std::string& floderName, const QDomNode &texureDomNode);
     int ProcessEnvMap(const std::string& floderName, const QDomNode &envMapDomNode);
     int ProcessShape(const std::string& floderName, const QDomNode &shapeDomNode);
-    int ProcessCamera(const std::string& floderName, const QDomNode &shapeDomNode);
+    int ProcessCamera(const std::string& floderName, const QDomNode &cameraDomNode);
+    int ProcessConfig(const std::string& floderName, const QDomNode &configDomNode);
 
     MaterialDefuse* ReadDiffuseMaterial(const QDomNode &materialDomNode);
     MaterialSpecular* ReadSpecularMaterial(const QDomNode &materialDomNode);
@@ -45,11 +49,14 @@ private:
     glm::vec2 ReadGlmVec2FromDomNode(const QDomNode& node);
     std::string ReadStringFromDomNode(const QDomNode& node);
     float ReadFloatFromDomNode(const QDomNode& node);
+    int ReadIntFromDomNode(const QDomNode& node);
 
 private:
     std::unordered_map<std::string, TexureSampler*> mTexureMap;
     std::unordered_map<std::string, Material*> mMaterialMap;
     std::vector<Shape*> mShapes;
+    std::pair<bool, CpuEngin::Camera> mCamera = {false, CpuEngin::Camera()};
+    std::pair<bool, CpuEnginConfig> mConfigInfo = {false, CpuEnginConfig()};
     std::pair<std::string, SphericalMap*> mEnvMap = {"", nullptr};
 
 private:
@@ -61,5 +68,8 @@ private:
         {"rgb", 3}
     };
 };
+
+}
+
 
 #endif // !SCENE_READER_H

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene>
+    <!--texures-->
+    <texure type="rgb" id="ChessBoard">
+        <file_name type="string">texures/chessBoard.jpg</file_name>
+    </texure>
+    <texure type="roughness" id="WorldRoughness">
+        <file_name type="string">texures/world-roughness.png</file_name>
+    </texure>
+
+    <!--materials-->
+    <material type="diffuse" id="WhiteEmission">
+        <albedo type="vec3">1.0 1.0 1.0</albedo>
+        <emission type="vec3">1.0 1.0 1.0</emission>
+    </material>
+    <material type="diffuse" id="WhiteDefuse">
+        <albedo type="vec3">1.0 1.0 1.0</albedo>
+    </material>
+    <material type="diffuse" id="CyanDefuse">
+        <albedo type="vec3">0.0 1.0 1.0</albedo>
+    </material>
+    <material type="diffuse" id="ChessBoard">
+        <albedo type="texure">ChessBoard</albedo>
+    </material>
+    <material type="specular" id="RedSpecular">
+        <color type="vec3">1.0 0.0 0.0</color>
+    </material>
+    <material type="transparent" id="OrangeTransparent">
+        <color type="vec3">1.0 0.85 0.0</color>
+        <ior type="float">1.5</ior>
+    </material>
+    <material type="cook_torrance" id="GoldGlossy">
+        <f0 type="vec3">1.0 0.86 0.57</f0>
+        <roughness type="float">0.8</roughness>
+    </material>
+    <material type="cook_torrance" id="WorldMapGlossy">
+        <f0 type="vec3">1.0 0.86 0.57</f0>
+        <roughness type="texure">WorldRoughness</roughness>
+    </material>
+    <material type="frosted_glass" id="FrostedGlass">
+        <ior type="float">1.5</ior>
+        <roughness type="float">0.4</roughness>
+    </material>
+    <material type="frosted_glass" id="WorldMapGlass">
+        <ior type="float">1.5</ior>
+        <roughness type="texure">WorldRoughness</roughness>
+    </material>
+
+    <!--enviroment light-->
+    <env_map type="spherical" id="Alex_Apt_2k">
+        <file_name type="string">Alexs_Apt_2k.hdr</file_name>
+        <center_dir type="vec3">0.0 1.0 0.0</center_dir>
+    </env_map>
+
+    <!--shape-->
+    <shape type="mesh" id="teaport">
+        <obj type="string">models/teaport.obj</obj>
+        <scale type="float">25.36</scale>
+        <material type="string">RedSpecular</material>
+        <model_mat type="mat4">
+            <column0>1.0 0.0 0.0 0.0</column0>
+            <column1>0.0 1.0 0.0 0.0</column1>
+            <column2>2.0 0.0 1.0 0.0</column2>
+            <column3>0.0 0.0 3.0 1.0</column3>
+        </model_mat>
+    </shape>
+
+    <shape type="triangle" id="tableA">
+        <scale type="float">1.0</scale>
+        <p0 type="vec3">8.0 0.0 0.0</p0>
+        <p1 type="vec3">0.0 5.0 0.0</p1>
+        <p2 type="vec3">0.0 0.0 3.0</p2>
+        <n0 type="vec3">0.0 6.0 0.0</n0>
+        <n1 type="vec3">0.0 0.0 4.0</n1>
+        <n2 type="vec3">2.0 0.0 0.0</n2>
+        <t0 type="vec2">0.0 3.0</t0>
+        <t1 type="vec2">9.0 0.0</t1>
+        <t2 type="vec2">0.0 6.0</t2>
+        <material>CyanDefuse</material>
+        <model_mat type="mat4">
+            <column0>1.0 0.0 0.8 0.0</column0>
+            <column1>0.0 1.0 0.0 0.5</column1>
+            <column2>0.6 0.0 1.0 0.0</column2>
+            <column3>0.0 0.8 0.0 1.0</column3>
+        </model_mat>
+    </shape>
+
+    <shape type="triangle" id="lightA">
+        <scale type="float">1.0</scale>
+        <p0 type="vec3">8.0 0.0 0.0</p0>
+        <p1 type="vec3">0.0 5.0 0.0</p1>
+        <p2 type="vec3">0.0 0.0 3.0</p2>
+        <n0 type="vec3">0.0 6.0 0.0</n0>
+        <n1 type="vec3">0.0 0.0 4.0</n1>
+        <n2 type="vec3">2.0 0.0 0.0</n2>
+        <t0 type="vec2">0.0 3.0</t0>
+        <t1 type="vec2">9.0 0.0</t1>
+        <t2 type="vec2">0.0 6.0</t2>
+        <material>WhiteDefuse</material>
+        <model_mat type="mat4">
+            <column0>1.0 0.0 0.8 0.0</column0>
+            <column1>0.0 1.0 0.0 0.5</column1>
+            <column2>0.6 0.0 1.0 0.0</column2>
+            <column3>0.0 0.8 0.0 1.0</column3>
+        </model_mat>
+    </shape>
+
+    <!--camera-->
+    <camera>
+        <width type="float">1440</width>
+        <height type="float">1440</height>
+        <fov_y type="float">60</fov_y>
+        <position type="vec3">3.5 0.0 0.5</position>
+        <center type="vec3">2.0 0.0 0.0f</center>
+        <up type="vec3">0.0 0.0 1.0</up>
+        <gama type="float">2.2</gama>
+    </camera>
+
+    <user_config>
+        <spp type="float">4</spp>
+        <thread_count type="int">14</thread_count>
+        <max_depth type="int">10</max_depth>
+    </user_config>
+
+</scene>

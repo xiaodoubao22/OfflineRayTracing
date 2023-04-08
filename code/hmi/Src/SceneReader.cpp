@@ -8,6 +8,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
 
+namespace Hmi
+{
+
 SceneReader::SceneReader() {
 }
 
@@ -26,6 +29,8 @@ Scene* SceneReader::ReadFromFloder(std::string floderName) {
     mTexureMap.clear();
     mMaterialMap.clear();
     mShapes.clear();
+    mCamera = {false, CpuEngin::Camera()};
+    mConfigInfo = {false, CpuEnginConfig()};
 
     if (floderName.back() != '/') {
         floderName += "/";
@@ -60,6 +65,8 @@ Scene* SceneReader::ReadFromFloder(std::string floderName) {
 
     // 装填scene
     Scene* res = new Scene();
+    res->mCamera = mCamera.second;
+    res->mConfigInfo = mConfigInfo.second;
     res->PushmLightMap(mEnvMap.second);
     for (auto texure : mTexureMap) {
         res->PushTexure(texure.second);
@@ -76,6 +83,8 @@ Scene* SceneReader::ReadFromFloder(std::string floderName) {
     mTexureMap.clear();
     mMaterialMap.clear();
     mShapes.clear();
+    mCamera = {false, CpuEngin::Camera()};
+    mConfigInfo = {false, CpuEnginConfig()};
 
     return res;
 }
@@ -91,10 +100,16 @@ int SceneReader::ProcessSceneRoot(const std::string& floderName, const QDomNode 
         QDomNode sceneDomObject = sceneDomObjectList.at(i);
 
         if (sceneDomObject.nodeName().toStdString() == std::string("camera")) {
-
-        } 
-        else if (sceneDomObject.nodeName().toStdString() == std::string("user_config")) {
-            
+            if (mCamera.first == false) {   // 保证只读取一次camera
+                ProcessCamera(floderName, sceneDomObject);
+                mCamera.first = true;
+            }
+        }
+        else if (sceneDomObject.nodeName().toStdString() == std::string("config")) {
+            if (mConfigInfo.first == false) {   // 保证只读取一次fonfig
+                ProcessConfig(floderName, sceneDomObject);
+                mConfigInfo.first = true;
+            }
         }
         else if (sceneDomObject.nodeName().toStdString() == std::string("material")) {
             ProcessMaterial(floderName, sceneDomObject);
@@ -283,8 +298,84 @@ int SceneReader::ProcessShape(const std::string& floderName, const QDomNode &sha
     return 0;
 }
 
+int SceneReader::ProcessCamera(const std::string& floderName, const QDomNode &cameraDomNode) {
+    // 分辨率
+    QDomNode resolutionDomNode = FindChildDomNodeByName(cameraDomNode, std::string("resolution"));
+    if (!resolutionDomNode.isNull()) {
+        glm::vec2 resolution = ReadGlmVec2FromDomNode(resolutionDomNode);
+        mCamera.second.mWidth = resolution.x;
+        mCamera.second.mHeight = resolution.y;
+        std::cout << "cam resolution = " << mCamera.second.mWidth << " " << mCamera.second.mHeight << std::endl;
+    }
+
+    // y方向foy
+    QDomNode fovYDomNode = FindChildDomNodeByName(cameraDomNode, std::string("fov_y"));
+    if (!fovYDomNode.isNull()) {
+        mCamera.second.mFovY = ReadFloatFromDomNode(fovYDomNode);
+        std::cout << "cam fovy = " <<  mCamera.second.mFovY << std::endl;
+    }
+
+    // view
+    QDomNode positionDomNode = FindChildDomNodeByName(cameraDomNode, std::string("position"));
+    QDomNode centerDomNode = FindChildDomNodeByName(cameraDomNode, std::string("center"));
+    QDomNode upDomNode = FindChildDomNodeByName(cameraDomNode, std::string("up"));
+    if (!positionDomNode.isNull() && !centerDomNode.isNull() && !upDomNode.isNull()) {
+        glm::vec3 position = ReadGlmVec3FromDomNode(positionDomNode);
+        glm::vec3 center = ReadGlmVec3FromDomNode(centerDomNode);
+        glm::vec3 up = ReadGlmVec3FromDomNode(upDomNode);
+        mCamera.second.SetViewMatrix(position, center, up);
+        std::cout << "cam lookat = " 
+            << position.x << " " << position.y << " " << position.z << " --- "
+            << center.x << " " << center.y << " " << center.z << " --- "
+            << up.x << " " << up.y << " " << up.z << std::endl;
+    }
+
+    // gama
+    QDomNode gamaDomNode = FindChildDomNodeByName(cameraDomNode, std::string("gama"));
+    if (!gamaDomNode.isNull()) {
+        mCamera.second.mGama = ReadFloatFromDomNode(gamaDomNode);
+        std::cout << "cam gama = " << mCamera.second.mGama << std::endl;
+    }
+
+    return 0;
+}
+
+int SceneReader::ProcessConfig(const std::string& floderName, const QDomNode &configDomNode) {
+    // spp
+    QDomNode sppDomNode = FindChildDomNodeByName(configDomNode, std::string("spp"));
+    if (!sppDomNode.isNull()) {
+        mConfigInfo.second.spp = ReadIntFromDomNode(sppDomNode);
+        std::cout << "config spp = " <<  mConfigInfo.second.spp << std::endl;
+    }
+
+    // thread_count
+    QDomNode threadCountDomNode = FindChildDomNodeByName(configDomNode, std::string("thread_count"));
+    if (!threadCountDomNode.isNull()) {
+        mConfigInfo.second.threadCount = ReadIntFromDomNode(threadCountDomNode);
+        std::cout << "config tc = " <<  mConfigInfo.second.threadCount << std::endl;
+    }
+
+    // max_depth
+    QDomNode maxDepthDomNode = FindChildDomNodeByName(configDomNode, std::string("max_depth"));
+    if (!maxDepthDomNode.isNull()) {
+        mConfigInfo.second.maxTraceDepth = ReadIntFromDomNode(maxDepthDomNode);
+        std::cout << "config depth = " <<  mConfigInfo.second.maxTraceDepth << std::endl;
+    }
+
+    mConfigInfo.second.maxTraceDepth = 10;  // 暂时固定为10
+    return 0;
+}
+
 MaterialDefuse* SceneReader::ReadDiffuseMaterial(const QDomNode &materialDomNode) {
     MaterialDefuse* mat = new MaterialDefuse();
+    // emmision
+    QDomNode emmisionDomNode = FindChildDomNodeByName(materialDomNode, std::string("emission"));
+    if (!emmisionDomNode.isNull()) {
+        glm::vec3 emmision = ReadGlmVec3FromDomNode(materialDomNode);
+        mat->mHasEmission = true;
+        mat->mEmissionRadiance = emmision;
+    }
+
     // albedo
     QDomNode albedoDomNode = FindChildDomNodeByName(materialDomNode, std::string("albedo"));
     if (!albedoDomNode.isNull()) {
@@ -309,6 +400,15 @@ MaterialDefuse* SceneReader::ReadDiffuseMaterial(const QDomNode &materialDomNode
 
 MaterialSpecular* SceneReader::ReadSpecularMaterial(const QDomNode &materialDomNode) {
     MaterialSpecular* mat = new MaterialSpecular();
+    // emmision
+    QDomNode emmisionDomNode = FindChildDomNodeByName(materialDomNode, std::string("emission"));
+    if (!emmisionDomNode.isNull()) {
+        glm::vec3 emmision = ReadGlmVec3FromDomNode(materialDomNode);
+        mat->mHasEmission = true;
+        mat->mEmissionRadiance = emmision;
+    }
+
+    // specularRate
     QDomNode specularRateDomNode = FindChildDomNodeByName(materialDomNode, std::string("color"));
     std::string specularRateType("");   // 类型: vec3
     if (!specularRateDomNode.isNull()) {
@@ -329,6 +429,14 @@ MaterialSpecular* SceneReader::ReadSpecularMaterial(const QDomNode &materialDomN
 
 MaterialTransparent* SceneReader::ReadTransparentMaterial(const QDomNode &materialDomNode) {
     MaterialTransparent* mat = new MaterialTransparent();
+    // emmision
+    QDomNode emmisionDomNode = FindChildDomNodeByName(materialDomNode, std::string("emission"));
+    if (!emmisionDomNode.isNull()) {
+        glm::vec3 emmision = ReadGlmVec3FromDomNode(materialDomNode);
+        mat->mHasEmission = true;
+        mat->mEmissionRadiance = emmision;
+    }
+
     // color
     QDomNode colorDomNode = FindChildDomNodeByName(materialDomNode, std::string("color"));
     if (!colorDomNode.isNull()) {
@@ -356,6 +464,13 @@ MaterialTransparent* SceneReader::ReadTransparentMaterial(const QDomNode &materi
 
 MaterialCookTorrance* SceneReader::ReadCookTorranceMaterial(const QDomNode &materialDomNode) {
     MaterialCookTorrance* mat = new MaterialCookTorrance();
+    // emmision
+    QDomNode emmisionDomNode = FindChildDomNodeByName(materialDomNode, std::string("emission"));
+    if (!emmisionDomNode.isNull()) {
+        glm::vec3 emmision = ReadGlmVec3FromDomNode(materialDomNode);
+        mat->mHasEmission = true;
+        mat->mEmissionRadiance = emmision;
+    }
     // f0
     QDomNode f0DomNode = FindChildDomNodeByName(materialDomNode, std::string("f0"));
     std::string f0Type("");   // 类型: vec3
@@ -392,6 +507,14 @@ MaterialCookTorrance* SceneReader::ReadCookTorranceMaterial(const QDomNode &mate
 
 MaterialFrostedGlass* SceneReader::ReadFrostedGlassMaterial(const QDomNode &materialDomNode) {
     MaterialFrostedGlass* mat = new MaterialFrostedGlass();
+    // emmision
+    QDomNode emmisionDomNode = FindChildDomNodeByName(materialDomNode, std::string("emission"));
+    if (!emmisionDomNode.isNull()) {
+        glm::vec3 emmision = ReadGlmVec3FromDomNode(materialDomNode);
+        mat->mHasEmission = true;
+        mat->mEmissionRadiance = emmision;
+    }
+    
     // ior
     QDomNode iorDomNode = FindChildDomNodeByName(materialDomNode, std::string("ior"));
     std::string iorType("");   // 类型: vec3
@@ -659,4 +782,21 @@ float SceneReader::ReadFloatFromDomNode(const QDomNode& node) {
         return std::stof(dataDomNode.nodeValue().toStdString());
     }
     return 0.0f;
+}
+
+int SceneReader::ReadIntFromDomNode(const QDomNode& node) {
+    if (node.isNull()) {
+        return 0;
+    }
+    std::string type = FindAttributeByName(node, std::string("type"));
+    if (type != "int") {
+        return 0;
+    }
+    QDomNode dataDomNode = FindChildDomNodeByName(node, std::string("#text"));
+    if (!dataDomNode.isNull()) {
+        return std::stoi(dataDomNode.nodeValue().toStdString());
+    }
+    return 0;
+}
+
 }
