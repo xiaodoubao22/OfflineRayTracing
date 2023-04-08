@@ -1,4 +1,6 @@
 #include "Utils.h"
+#include "stb/stb_image.h"
+#include "stb/stb_image_write.h"
 
 std::random_device dev;
 float Utils::GetUniformRandom(float min, float max) {
@@ -39,4 +41,17 @@ glm::vec3 Utils::RandomDirectionFromLDS(glm::vec3 n, float x, float y)
         randVec = randVec + dotNToRandVec * n;
     }
     return randVec;
+}
+
+void Utils::SaveImage(float* SRC, const std::string& filePath, int width, int height, int channel)
+{
+    int imageBufferSize = width * height * channel;
+    unsigned char* image = new unsigned char[imageBufferSize];// 图像buffer
+    unsigned char* p = image;
+    float* S = SRC;    // 源数据
+    for (int i = 0; i < imageBufferSize; i++)
+    {
+        *p++ = (unsigned char)std::clamp((*S++) * 255.0f, 0.0f, 255.0f);
+    }
+    stbi_write_png(filePath.c_str(), width, height, channel, image, 0);
 }

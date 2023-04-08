@@ -42,10 +42,10 @@ HitResult Sphere::Intersect(Ray ray) {
 	float t1 = s - q;
 	float t2 = s + q;
 	float t = t1;
-	if (t1 < 0.0001f * Consts::SCALE) {
+	if (t1 < 0.0001f ) {
 		t = t2;
 	}
-	if (t < 0.0001f * Consts::SCALE) {
+	if (t < 0.0001f) {
 		return res;
 	}
 

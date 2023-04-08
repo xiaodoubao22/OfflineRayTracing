@@ -8,7 +8,7 @@ LdsGenerator* LdsGenerator::GetInstance() {
 	return &instance;
 }
 
-void LdsGenerator::Build(int dim, std::vector<uint32_t>& a, std::vector<std::vector<uint32_t>>& m) {
+void LdsGenerator::Build(int threadCount, int dim, std::vector<uint32_t>& a, std::vector<std::vector<uint32_t>>& m) {
 	uint32_t bit = 1;
 	mBits = std::vector<uint32_t>(32);
 	for (int i = 0; i < 32; i++) {
@@ -19,8 +19,8 @@ void LdsGenerator::Build(int dim, std::vector<uint32_t>& a, std::vector<std::vec
 	mIndex.resize(dim);
 	mDigit32.resize(dim);
 	for (int i = 0; i < dim; i++) {
-		mIndex[i] = std::vector<uint32_t>(Consts::THREAD_COUNT);
-		mDigit32[i] = std::vector<uint32_t>(Consts::THREAD_COUNT);
+		mIndex[i] = std::vector<uint32_t>(threadCount);
+		mDigit32[i] = std::vector<uint32_t>(threadCount);
 	}
 
 	int idxOffs = 1;

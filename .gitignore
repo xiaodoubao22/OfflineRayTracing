@@ -1,9 +1,11 @@
 build/
 third_party/
+!third_party/README.md
 
 # models
 models/
 !models/README.md
+!models/Sample/
 
 # result
 result/

@@ -30,6 +30,7 @@ set(CPU_ENGIN_INC_DIR ${CMAKE_SOURCE_DIR}/cpu_engin/Inc)
 set(CPU_ENGIN_INC_FILES
     ${CPU_ENGIN_INC_DIR}/BoundingBox.h
     ${CPU_ENGIN_INC_DIR}/BvhTree.h
+    ${CPU_ENGIN_INC_DIR}/Camera.h
     ${CPU_ENGIN_INC_DIR}/HitResult.h
     ${CPU_ENGIN_INC_DIR}/LdsGenerator.h
     ${CPU_ENGIN_INC_DIR}/Material.h
@@ -40,7 +41,7 @@ set(CPU_ENGIN_INC_FILES
     ${CPU_ENGIN_INC_DIR}/MaterialSet.h
     ${CPU_ENGIN_INC_DIR}/MaterialTransparent.h
     ${CPU_ENGIN_INC_DIR}/Mesh.h
-    ${CPU_ENGIN_INC_DIR}/Randerer.h
+    ${CPU_ENGIN_INC_DIR}/Renderer.h
     ${CPU_ENGIN_INC_DIR}/Scene.h
     ${CPU_ENGIN_INC_DIR}/Shape.h
     ${CPU_ENGIN_INC_DIR}/ShapeSet.h
@@ -54,6 +55,7 @@ set(CPU_ENGIN_SRC_DIR ${CMAKE_SOURCE_DIR}/cpu_engin/Src)
 set(CPU_ENGIN_SRC_FILES
     ${CPU_ENGIN_SRC_DIR}/BoundingBox.cpp
     ${CPU_ENGIN_SRC_DIR}/BvhTree.cpp
+    ${CPU_ENGIN_SRC_DIR}/Camera.cpp
     ${CPU_ENGIN_SRC_DIR}/LdsGenerator.cpp
     ${CPU_ENGIN_SRC_DIR}/Material.cpp
     ${CPU_ENGIN_SRC_DIR}/MaterialCookTorrance.cpp
@@ -62,7 +64,7 @@ set(CPU_ENGIN_SRC_FILES
     ${CPU_ENGIN_SRC_DIR}/MaterialSpecular.cpp
     ${CPU_ENGIN_SRC_DIR}/MaterialTransparent.cpp
     ${CPU_ENGIN_SRC_DIR}/Mesh.cpp
-    ${CPU_ENGIN_SRC_DIR}/Randerer.cpp
+    ${CPU_ENGIN_SRC_DIR}/Renderer.cpp
     ${CPU_ENGIN_SRC_DIR}/Scene.cpp
     ${CPU_ENGIN_SRC_DIR}/Shape.cpp
     ${CPU_ENGIN_SRC_DIR}/Sphere.cpp

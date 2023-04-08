@@ -1,18 +1,20 @@
-#include "Randerer.h"
+#include "Renderer.h"
 #include <thread>
 
-Randerer::Randerer() {
+namespace CpuEngin
+{
+
+Renderer::Renderer() {
 
 }
 
-void Randerer::SetViewMatrix(glm::mat4 view) {
-    mViewMatrix = view;
-}
+void Renderer::Draw(float* image, Scene& scene) {
 
-void Randerer::Draw(float* image, Scene& scene) {
 #ifdef SAVE_RAY
     Utils::mSaveRayPath = fopen("../../tools/SaveRay/Rays.txt", "wb");
 #endif // SAVE_RAY
+
+    mConfigInfo = scene.mConfigInfo;
 
     mInitTime = std::chrono::system_clock::now();
     mNumPixels = 0;
@@ -23,7 +25,7 @@ void Randerer::Draw(float* image, Scene& scene) {
                             13, 14, 1, 13,
                             16, 19, 22, 25,
                             1, 4, 7, 8 };
-    std::vector<std::vector<uint32_t>> m((Consts::MAX_TRACE_DEPTH + 1) * 2);
+    std::vector<std::vector<uint32_t>> m((mConfigInfo.maxTraceDepth + 1) * 2);
     m[0] = { 1 };
     m[1] = { 1, 3 };
     m[2] = { 1, 3, 1 };
@@ -46,20 +48,20 @@ void Randerer::Draw(float* image, Scene& scene) {
     m[19] = { 1, 3, 7, 13, 13, 15, 69 };
     m[20] = { 1, 1, 3, 13, 7, 35, 63 };
     m[21] = { 1, 5, 9, 1, 25, 53 };
-    LdsGenerator::GetInstance()->Build((Consts::MAX_TRACE_DEPTH + 1) * 2, a, m);
-    
+    LdsGenerator::GetInstance()->Build(mConfigInfo.threadCount, (mConfigInfo.maxTraceDepth + 1) * 2, a, m);
+
     // 开多线程
     std::vector<std::thread> threads;
-    for (int i = 0; i < Consts::THREAD_COUNT; i++) {
-        int numRows = std::ceil((float)Consts::HEIGHT / (float)Consts::THREAD_COUNT);
+    for (int i = 0; i < mConfigInfo.threadCount; i++) {
+        int numRows = std::ceil((float)scene.mCamera.mHeight / (float)mConfigInfo.threadCount);
         int startRow = i * numRows;
-        numRows = std::min(numRows, Consts::HEIGHT - startRow);
+        numRows = std::min(numRows, scene.mCamera.mHeight - startRow);
         // 创建线程
-        threads.push_back(std::thread(&Randerer::DrawPart, this, std::ref(image), std::ref(scene), startRow, numRows, i));
+        threads.push_back(std::thread(&Renderer::DrawPart, this, std::ref(image), std::ref(scene), startRow, numRows, i));
     }
 
     // 等待线程结束
-    for (int i = 0; i < Consts::THREAD_COUNT; i++) {
+    for (int i = 0; i < mConfigInfo.threadCount; i++) {
         threads[i].join();
     }
 
@@ -71,52 +73,49 @@ void Randerer::Draw(float* image, Scene& scene) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(dur).count();
     auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
     std::cout << std::endl;
-    std::cout << "rander time cost: " << hours % 60 << ":" << minutes % 60 << ":" << seconds % 60 << ":" << milliseconds % 1000 << std::endl;
+    std::cout << "render time cost: " << hours % 60 << ":" << minutes % 60 << ":" << seconds % 60 << ":" << milliseconds % 1000 << std::endl;
 
 #ifdef SAVE_RAY
     fclose(Utils::mSaveRayPath);
 #endif // SAVE_RAY
 }
 
-void Randerer::DrawPart(float* framebuffer, Scene& scene, int startRow, int numRows, int threadNum) {
+void Renderer::DrawPart(float* framebuffer, Scene& scene, int startRow, int numRows, int threadNum) {
     // 相机参数
-    float tanFovY_2 = tanf(Utils::DegToRad(Consts::FOVY) / 2.0f);
-    float aspectRatio = float(Consts::WIDTH) / float(Consts::HEIGHT);
-
-    glm::mat4 viewInv = glm::inverse(mViewMatrix);
+    float tanFovY_2 = tanf(Utils::DegToRad(scene.mCamera.mFovY) / 2.0f);
+    float aspectRatio = float(scene.mCamera.mWidth) / float(scene.mCamera.mHeight);
+    glm::mat4 viewInv = glm::inverse(scene.mCamera.mViewMatrix);
+    float gama = 1.0f / scene.mCamera.mGama;
 
     float* p = framebuffer;
-    p += startRow * Consts::WIDTH * 3;
+    p += startRow * scene.mCamera.mWidth * 3;
 
     int endRow = startRow + numRows;
     for (int i = startRow; i < endRow; i++)
     {
-        for (int j = 0; j < Consts::WIDTH; j++)
+        for (int j = 0; j < scene.mCamera.mWidth; j++)
         {
             TraceInfo info;
             info.threadNum = threadNum;
-            info.saveRay = i == Consts::SAVE_RAY_COORD.y && j == Consts::SAVE_RAY_COORD.x;
+            info.saveRay = (i == Consts::SAVE_RAY_COORD.y) && (j == Consts::SAVE_RAY_COORD.x);
             glm::vec3 L(0.0f);
-            for (int k = 0; k < Consts::SPP; k++)
+            for (int k = 0; k < mConfigInfo.spp; k++)
             {
                 // 生成光线
-                float dy = LdsGenerator::GetInstance()->Get(0, threadNum); -0.5f;
+                float dy = LdsGenerator::GetInstance()->Get(0, threadNum) - 0.5f;
                 float dx = LdsGenerator::GetInstance()->Get(1, threadNum) - 0.5f;
                 //float dy = Utils::GetUniformRandom(-0.5f, 0.5f);
                 //float dx = Utils::GetUniformRandom(-0.5f, 0.5f);
-                float y = -(2.0f * float(i + dy) / float(Consts::HEIGHT) - 1.0f) * tanFovY_2;
-                float x = (2.0f * float(j + dx) / float(Consts::WIDTH) - 1.0f) * tanFovY_2 * aspectRatio;
+                float y = -(2.0f * float(i + dy) / float(scene.mCamera.mHeight) - 1.0f) * tanFovY_2;
+                float x = (2.0f * float(j + dx) / float(scene.mCamera.mWidth) - 1.0f) * tanFovY_2 * aspectRatio;
 
-                glm::vec3 direction(x, y, -1.0f);
-                direction = glm::normalize(direction);
-                direction = glm::mat3(viewInv) * direction;
+                glm::vec3 direction = glm::mat3(viewInv) * glm::normalize(glm::vec3(x, y, -1.0f));
 
                 Ray ray;
-                ray.origin = glm::vec3(viewInv[3]) * Consts::SCALE;
+                ray.origin = glm::vec3(viewInv[3]); // view矩阵第三列
                 ray.direction = direction;
                 
                 // 投射光线
-                
                 glm::vec3 color = CastRay(scene, ray, info);
 #ifdef CLAMP_COLOR
                 color.x = std::clamp(color.x, 0.0f, 100.0f);
@@ -125,25 +124,26 @@ void Randerer::DrawPart(float* framebuffer, Scene& scene, int startRow, int numR
 #endif // CLAMP_COLOR
                 L += color;
             }
-            L = L / float(Consts::SPP);
+            L = L / float(mConfigInfo.spp);
 
-            *p += L.x; p++;  // R 通道
-            *p += L.y; p++;  // G 通道
-            *p += L.z; p++;  // B 通道
+            // 储存颜色+gama校正
+            *p = powf(L.x, gama); p++;  // R 通道
+            *p = powf(L.y, gama); p++;  // G 通道
+            *p = powf(L.z, gama); p++;  // B 通道
 
             mNumPixels++;
         }
 
         mPrintMutex.lock();
         if (i % 10 == 0 || i == endRow - 1) {
-            std::cout << 100.0f * float(mNumPixels) / float(Consts::WIDTH * Consts::HEIGHT) << "% done \r" ;
+            std::cout << 100.0f * float(mNumPixels) / float(scene.mCamera.mWidth * scene.mCamera.mHeight) << "% done \r" ;
             std::cout.flush();
         }
         mPrintMutex.unlock();
     }
 }
 
-glm::vec3 Randerer::CastRay(Scene& scene, Ray ray, TraceInfo info) {
+glm::vec3 Renderer::CastRay(Scene& scene, Ray ray, TraceInfo info) {
     // 找交点并输出交点的颜色
     HitResult res = scene.GetIntersect(ray);
     //return glm::vec3(res.texCoord.y, res.texCoord.y, res.texCoord.y);
@@ -171,9 +171,9 @@ glm::vec3 Randerer::CastRay(Scene& scene, Ray ray, TraceInfo info) {
     return color;
 }
 
-glm::vec3 Randerer::Shade(Scene& scene, Ray ray, HitResult p, TraceInfo info) {
+glm::vec3 Renderer::Shade(Scene& scene, Ray ray, HitResult p, TraceInfo info) {
     info.depth++;
-    if (info.depth > Consts::MAX_TRACE_DEPTH) {
+    if (info.depth > mConfigInfo.maxTraceDepth) {
         return glm::vec3(0.0f);
     }
 #ifdef SAVE_RAY
@@ -281,4 +281,6 @@ glm::vec3 Randerer::Shade(Scene& scene, Ray ray, HitResult p, TraceInfo info) {
 
     info.depth--;
     return Ldir + Lindir;
+}
+
 }
