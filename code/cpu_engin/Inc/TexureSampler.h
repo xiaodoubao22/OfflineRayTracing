@@ -9,11 +9,13 @@ protected:
 	float* mTexureData = nullptr;
 	int mWidth;
 	int mHeight;
+	int mChannels = 0;
 
 public:
 	TexureSampler() = delete;
 	TexureSampler(float* data, int w, int h);
 	virtual ~TexureSampler();
+	int NumChannels();
 
 	//virtual glm::vec4 Sample(glm::vec2 texCoord) = 0;
 };
@@ -30,8 +32,6 @@ public:
 // ===== TexureSampler2F =====
 class TexureSampler2F : public TexureSampler
 {
-private:
-	const int mChannels = 2;
 public:
 	TexureSampler2F(float* data, int w, int h);
 	virtual ~TexureSampler2F();
@@ -41,8 +41,6 @@ public:
 // ===== TexureSampler3F =====
 class TexureSampler3F : public TexureSampler
 {
-private:
-	const int mChannels = 3;
 public:
 	TexureSampler3F(float* data, int w, int h);
 	virtual ~TexureSampler3F();
@@ -54,6 +52,8 @@ class SphericalMap
 private:
 	TexureSampler3F mLightMap;
 	bool mIsEmpty = false;
+	float mPitchOffset = 0.0f;
+	float mYawOffset = 0.0f;
 
 public:
 	SphericalMap(float* data, int w, int h);

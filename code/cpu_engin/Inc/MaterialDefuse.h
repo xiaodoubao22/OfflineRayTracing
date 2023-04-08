@@ -19,6 +19,10 @@ public:
 	virtual bool SampleWithImportance(SampleData& data) override;
 	virtual void Eval(SampleData& data) override;
 	bool IsExtremelySpecular(glm::vec2 texCoord) override;
+
+public:
+	void SetAlbedo(const glm::vec3& albedo);
+	void SetAlbedo(TexureSampler3F* albedoTexure);
 };
 
 

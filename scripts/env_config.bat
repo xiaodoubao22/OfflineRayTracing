@@ -1,5 +1,5 @@
 :: 当前脚本路径
-set cur_dir=%~dp0
+set script_dir=%~dp0
 
 :: # Qt5前缀路径
 set qt5_prefix_path=C:/Qt/Qt5.14.2/5.14.2/mingw73_64/lib/cmake

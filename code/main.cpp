@@ -18,9 +18,8 @@
 #include <vector>
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
+
 #include "stb/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
 
 
@@ -53,7 +52,7 @@ inline void imshow(float* SRC)
 
 #include "LdsGenerator.h"
 
-int main() {
+int main0() {
     std::cout << "start pt" << std::endl;
 
     Scene* scene = new Scene;
@@ -222,13 +221,31 @@ int main() {
     //scene->PushShape(new Sphere(glm::vec3(0.0, -0.4, 0.0) * Consts::SCALE, 0.6f * Consts::SCALE, FrostedGlass));
 
     // 棋盘格
-    Triangle* chessBoardA = new Triangle(glm::vec3(2.0, -2.0, -1) * Consts::SCALE, glm::vec3(-2.0, 2.0, -1) * Consts::SCALE, glm::vec3(-2.0, -2.0, -1) * Consts::SCALE, boxDefuse);
-    chessBoardA->SetNormal(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    chessBoardA->SetTexureCoord(glm::vec2(1.0f, 1.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f));
+    Triangle* chessBoardA = new Triangle(
+        glm::vec3(2.0, -2.0, -1) * Consts::SCALE, 
+        glm::vec3(-2.0, 2.0, -1) * Consts::SCALE, 
+        glm::vec3(-2.0, -2.0, -1) * Consts::SCALE, boxDefuse);
+    chessBoardA->SetNormal(
+        glm::vec3(0.0f, 0.0f, 1.0f), 
+        glm::vec3(0.0f, 0.0f, 1.0f), 
+        glm::vec3(0.0f, 0.0f, 1.0f));
+    chessBoardA->SetTexureCoord(
+        glm::vec2(1.0f, 1.0f), 
+        glm::vec2(0.0f, 0.0f), 
+        glm::vec2(0.0f, 1.0f));
 
-    Triangle* chessBoardB = new Triangle(glm::vec3(2.0, -2.0, -1) * Consts::SCALE, glm::vec3(2.0, 2.0, -1) * Consts::SCALE, glm::vec3(-2.0, 2.0, -1) * Consts::SCALE, boxDefuse);
-    chessBoardB->SetNormal(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    chessBoardB->SetTexureCoord(glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+    Triangle* chessBoardB = new Triangle(
+        glm::vec3(2.0, -2.0, -1) * Consts::SCALE, 
+        glm::vec3(2.0, 2.0, -1) * Consts::SCALE, 
+        glm::vec3(-2.0, 2.0, -1) * Consts::SCALE, boxDefuse);
+    chessBoardB->SetNormal(
+        glm::vec3(0.0f, 0.0f, 1.0f), 
+        glm::vec3(0.0f, 0.0f, 1.0f), 
+        glm::vec3(0.0f, 0.0f, 1.0f));
+    chessBoardB->SetTexureCoord(
+        glm::vec2(1.0f, 1.0f), 
+        glm::vec2(1.0f, 0.0f), 
+        glm::vec2(0.0f, 0.0f));
 
     scene->PushShape(chessBoardA);
     scene->PushShape(chessBoardB);
@@ -250,10 +267,7 @@ int main() {
 }
 
 
-int main0() {
-
-
-
+int main1() {
     //int width, height, nrChannels;
     //float* data = stbi_loadf("../models/sphere/world-mask.png", &width, &height, &nrChannels, 0);
     //TexureSampler3F t0(data, width, height);
@@ -279,4 +293,25 @@ int main0() {
     return 0;
 }
 
+
+#include "SceneReader.h"
+int main() {
+    std::string floderName = "../../models/TestScene";
+    Scene* scene = SceneReader::GetInstance()->ReadFromFloder(floderName);
+    if (scene == nullptr) {
+        return 0;
+    }
+
+    // 图像
+    float* image = new float[Consts::WIDTH * Consts::HEIGHT * 3];
+    memset(image, 0, sizeof(float) * Consts::WIDTH * Consts::HEIGHT * 3);
+
+    glm::mat4 view = glm::lookAt(glm::vec3(3.5f, 0.0f, 0.5f), glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    Randerer randerer;
+    randerer.SetViewMatrix(view);
+    randerer.Draw(image, *scene);
+
+    imshow(image);
+
+}
 

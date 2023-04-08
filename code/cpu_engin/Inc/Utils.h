@@ -11,7 +11,7 @@
 
 #include "assimp/scene.h"
 
-#define SAVE_RAY
+// #define SAVE_RAY
 #define CLAMP_COLOR
 
 namespace Consts {
@@ -22,7 +22,7 @@ namespace Consts {
     const float FOVY = 60.0f;
     const float SCALE = 100;   // 用于测试模型放缩
     const glm::vec3 EYE(0, 0, 4.0f * SCALE);
-    const int SPP = 512;
+    const int SPP = 16;
     const int THREAD_COUNT = 14;
     const float GAMA = 1.0f / 2.2f;
     const int MAX_TRACE_DEPTH = 10;

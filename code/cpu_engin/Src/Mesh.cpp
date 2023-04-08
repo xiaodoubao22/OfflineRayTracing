@@ -15,9 +15,9 @@ Mesh::Mesh(aiMesh* assImpMesh, Material* material, float scale) {
 		unsigned int ind1 = face.mIndices[1];
 		unsigned int ind2 = face.mIndices[2];
 			
-		glm::vec3 p0 = scale * Utils::AiVector3DToGlm(assImpMesh->mVertices[ind0]);// - glm::vec3(0.0f, 40.0f, 0.0f);
-		glm::vec3 p1 = scale * Utils::AiVector3DToGlm(assImpMesh->mVertices[ind1]);// - glm::vec3(0.0f, 40.0f, 0.0f);
-		glm::vec3 p2 = scale * Utils::AiVector3DToGlm(assImpMesh->mVertices[ind2]);// - glm::vec3(0.0f, 40.0f, 0.0f);
+		glm::vec3 p0 = scale * Utils::AiVector3DToGlm(assImpMesh->mVertices[ind0]);
+		glm::vec3 p1 = scale * Utils::AiVector3DToGlm(assImpMesh->mVertices[ind1]);
+		glm::vec3 p2 = scale * Utils::AiVector3DToGlm(assImpMesh->mVertices[ind2]);
 
 		Triangle* triangle = nullptr;
 		triangle = new Triangle(p0, p1, p2, mMaterial);

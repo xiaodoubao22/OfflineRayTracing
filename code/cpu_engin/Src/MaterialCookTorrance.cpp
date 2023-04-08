@@ -16,9 +16,9 @@ MaterialCookTorrance::MaterialCookTorrance(float roughness, glm::vec3 f0) : Mate
 }
 
 MaterialCookTorrance::MaterialCookTorrance(TexureSampler1F* roughnessTexure, glm::vec3 f0) : Material(COOK_TORRANCE) {
+	mF0 = f0;
 	mUseTexure = true;
 	mRoughnessTexure = roughnessTexure;
-	mF0 = f0;
 }
 
 bool MaterialCookTorrance::SampleAndEval(SampleData& data, TraceInfo info) {
@@ -110,4 +110,18 @@ float MaterialCookTorrance::GeometrySmith(float absDotWiToNormal, float absDotWo
 glm::vec3 MaterialCookTorrance::FresnelSchlic(float absDotWiToNormal) {
 	float cosTheta = std::min(absDotWiToNormal, 1.0f);
 	return mF0 + (glm::vec3(1.0f) - mF0) * powf(1.0f - cosTheta, 5.0f);
+}
+
+void MaterialCookTorrance::SetRoughness(float roughness) {
+	mRoughness = roughness;
+	mAlpha = mRoughness * mRoughness;
+	mAlphaSquare = mAlpha * mAlpha;
+}
+
+void MaterialCookTorrance::SetRoughness(TexureSampler1F* roughnessTexure) {
+	mRoughnessTexure = roughnessTexure;
+}
+
+void MaterialCookTorrance::SetF0(const glm::vec3& f0) {
+	mF0 = f0;
 }

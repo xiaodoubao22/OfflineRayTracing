@@ -195,3 +195,18 @@ float MaterialFrostedGlass::FresnelSchlic(glm::vec3 wi, glm::vec3 wh) {
 
 	return mF0 + (1.0f - mF0) * powf(1.0f - cosTheta, 5.0f);
 }
+
+void MaterialFrostedGlass::SetRoughness(float roughness) {
+	mRoughness = roughness;
+	mAlpha = mRoughness * mRoughness;
+	mAlphaSquare = mAlpha * mAlpha;
+}
+
+void MaterialFrostedGlass::SetRoughness(TexureSampler1F* roughnessTexure) {
+	mRoughnessTexure = roughnessTexure;
+}
+
+void MaterialFrostedGlass::SetIor(float ior) {
+	mIor = ior;
+	mF0 = pow((1.0f - ior) / (1.0f + ior), 2);
+}

@@ -20,7 +20,6 @@ public:
 	SphericalMap* mLightMap = nullptr;
 	glm::mat4 mViewmatrix = glm::mat4(1.0f);
 
-
 public:
 	Scene();
 	~Scene();

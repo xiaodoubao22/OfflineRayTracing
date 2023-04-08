@@ -10,13 +10,16 @@ TexureSampler::TexureSampler(float* data, int w, int h) {
 TexureSampler::~TexureSampler() {
 	if (mTexureData != nullptr) {
 		delete mTexureData;
-	}
-	
+	}	
+}
+
+int TexureSampler::NumChannels() {
+	return mChannels;
 }
 
 // ===== TexureSampler1F =====
 TexureSampler1F::TexureSampler1F(float* data, int w, int h) : TexureSampler(data, w, h) {
-
+	mChannels = 1;
 }
 
 TexureSampler1F::~TexureSampler1F() {
@@ -31,7 +34,7 @@ float TexureSampler1F::Sample(glm::vec2 texCoord) {
 
 // ===== TexureSampler2F =====
 TexureSampler2F::TexureSampler2F(float* data, int w, int h) : TexureSampler(data, w, h) {
-
+	mChannels = 2;
 }
 
 TexureSampler2F::~TexureSampler2F() {
@@ -48,7 +51,7 @@ glm::vec2 TexureSampler2F::Sample(glm::vec2 texCoord) {
 
 // ===== TexureSampler3F =====
 TexureSampler3F::TexureSampler3F(float* data, int w, int h) : TexureSampler(data, w, h) {
-
+	mChannels = 3;
 }
 
 TexureSampler3F::~TexureSampler3F() {

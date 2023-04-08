@@ -52,3 +52,12 @@ void MaterialDefuse::Eval(SampleData& data) {
 bool MaterialDefuse::IsExtremelySpecular(glm::vec2 texCoord) {
 	return false;
 }
+
+void MaterialDefuse::SetAlbedo(const glm::vec3& albedo) {
+	mAlbedo = albedo;
+}
+
+void MaterialDefuse::SetAlbedo(TexureSampler3F* albedoTexure) {
+	mAlbedoTexure = albedoTexure;
+	mUseTexure = true;
+}
