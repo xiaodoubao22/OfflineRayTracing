@@ -14,6 +14,11 @@
 
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res2.png)
 
+### 在Cook-Torrance材质模型中使用Kulla-Conty近似能量守恒，白炉测试结果
+注：第一排使用Kulla-Conty近似，第二排未使用
+
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/white_furnace.png)
+
 ## 模块分解
 
 ### CPU离线渲染器
