@@ -2,14 +2,17 @@
 #define MATERIAL_H
 
 #include "Utils.h"
+#include "LdsGenerator.h"
 
 struct SampleData {
 	glm::vec3 wi = glm::vec3(0.0f);
 	glm::vec3 wo = glm::vec3(0.0f);
+    glm::vec3 wh = glm::vec3(0.0f);
 	glm::vec3 normal = glm::vec3(0.0f);
 	glm::vec2 texCoord = glm::vec2(0.0f);
 	glm::vec3 frCosine = glm::vec3(0.0f);;	// frCosine = BRDF * cosine
 	float pdf = 0.0f;
+    LdsGenerator* aRandomGenerator = nullptr;
 };
 
 enum MaterialType {
@@ -30,6 +33,8 @@ public:
 public:
 	Material() = delete;
 	explicit Material(MaterialType type);
+    virtual ~Material();
+
 	MaterialType GetType();
 	bool HasEmission();
 	glm::vec3 GetEmission();
@@ -39,7 +44,7 @@ public:
 	// wo, wi from eye to scene
 	// fr = BRDF * cosine
 	virtual bool SampleAndEval(SampleData& data, TraceInfo info) = 0;
-	virtual bool SampleWithImportance(SampleData& data) = 0;
+	virtual bool SampleWithImportance(SampleData& data, const TraceInfo& info) = 0;
 	virtual void Eval(SampleData& data) = 0;
 	virtual bool IsExtremelySpecular(glm::vec2 texCoord) = 0;
 };

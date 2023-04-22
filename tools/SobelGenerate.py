@@ -28,7 +28,7 @@ class Sobel:
         for k in range(1, 33):  # k~[1,32]
             vk = self.m[k - self.idxOffs] << (32 - k)
             self.v_.append(vk)
-        print(self.v_)
+        # print(self.v_)
         return
 
         
@@ -47,17 +47,22 @@ class Sobel:
         self.xlast = x
         return x / (1 << 32)
 
-ax = [0, 1]
-mx = [1, 3, 7]
-ay = [1, 0]
-my = [1, 1, 1]
+ax = []
+mx = [1]
+ay = [1]
+my = [1, 3]
+az = [0, 1]
+mz = [1, 3, 1]
 
 sobelx = Sobel(ax, mx)
 sobely = Sobel(ay, my)
+sobelz = Sobel(az, mz)
 
 for i in range(32):
     x1 = sobelx.Generate()
-    # y1 = sobely.Generate()
+    y1 = sobely.Generate()
+    z1 = sobelz.Generate()
+    print(x1, y1, z1)
 
 
 # fig=plt.figure(figsize=(12,6))

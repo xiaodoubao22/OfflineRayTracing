@@ -5,7 +5,13 @@ namespace CpuEngin
 {
 
 Renderer::Renderer() {
+    mLdsGenerator = new LdsGenerator();
+}
 
+Renderer::~Renderer() {
+    if (mLdsGenerator != nullptr) {
+        delete mLdsGenerator;
+    }
 }
 
 void Renderer::Draw(float* image, Scene& scene) {
@@ -20,35 +26,7 @@ void Renderer::Draw(float* image, Scene& scene) {
     mNumPixels = 0;
 
     // 初始化随机序列
-    std::vector<uint32_t> a = { 0, 1, 1, 2, 1,
-                            4, 2, 4, 7, 11,
-                            13, 14, 1, 13,
-                            16, 19, 22, 25,
-                            1, 4, 7, 8 };
-    std::vector<std::vector<uint32_t>> m((mConfigInfo.maxTraceDepth + 1) * 2);
-    m[0] = { 1 };
-    m[1] = { 1, 3 };
-    m[2] = { 1, 3, 1 };
-    m[3] = { 1, 1, 1 };
-    m[4] = { 1, 1, 3, 3 };
-    m[5] = { 1, 3, 5, 13 };
-    m[6] = { 1, 1, 5, 5, 17 };
-    m[7] = { 1, 1, 5, 5, 5 };
-    m[8] = { 1, 1, 7, 11, 19 };
-    m[9] = { 1, 1, 5, 1, 1 };
-    m[10] = { 1, 1, 1, 3, 11 };
-    m[11] = { 1, 3, 5, 5, 31 };
-    m[12] = { 1, 3, 3, 9, 7, 49 };
-    m[13] = { 1, 1, 1, 15, 21, 21 };
-    m[14] = { 1, 3, 1, 13, 27, 49 };
-    m[15] = { 1, 1, 1, 15, 7, 5 };
-    m[16] = { 1, 3, 1, 15, 13, 25 };
-    m[17] = { 1, 1, 5, 5, 19, 61 };
-    m[18] = { 1, 3, 7, 11, 23, 15, 103 };
-    m[19] = { 1, 3, 7, 13, 13, 15, 69 };
-    m[20] = { 1, 1, 3, 13, 7, 35, 63 };
-    m[21] = { 1, 5, 9, 1, 25, 53 };
-    LdsGenerator::GetInstance()->Build(mConfigInfo.threadCount, (mConfigInfo.maxTraceDepth + 1) * 2, a, m);
+    mLdsGenerator->Build(scene.mCamera.mHeight * scene.mCamera.mWidth, (mConfigInfo.maxTraceDepth + 1) * 2);
 
     // 开多线程
     std::vector<std::thread> threads;
@@ -96,16 +74,16 @@ void Renderer::DrawPart(float* framebuffer, Scene& scene, int startRow, int numR
         for (int j = 0; j < scene.mCamera.mWidth; j++)
         {
             TraceInfo info;
-            info.threadNum = threadNum;
+            info.pixelNum = threadNum;//i * scene.mCamera.mWidth + j;
             info.saveRay = (i == Consts::SAVE_RAY_COORD.y) && (j == Consts::SAVE_RAY_COORD.x);
             glm::vec3 L(0.0f);
             for (int k = 0; k < mConfigInfo.spp; k++)
             {
                 // 生成光线
-                float dy = LdsGenerator::GetInstance()->Get(0, threadNum) - 0.5f;
-                float dx = LdsGenerator::GetInstance()->Get(1, threadNum) - 0.5f;
-                //float dy = Utils::GetUniformRandom(-0.5f, 0.5f);
-                //float dx = Utils::GetUniformRandom(-0.5f, 0.5f);
+                float dy = mLdsGenerator->Get(0, info.pixelNum) - 0.5f;
+                float dx = mLdsGenerator->Get(1, info.pixelNum) - 0.5f;
+                // float dy = Utils::GetUniformRandom(-0.5f, 0.5f);
+                // float dx = Utils::GetUniformRandom(-0.5f, 0.5f);
                 float y = -(2.0f * float(i + dy) / float(scene.mCamera.mHeight) - 1.0f) * tanFovY_2;
                 float x = (2.0f * float(j + dx) / float(scene.mCamera.mWidth) - 1.0f) * tanFovY_2 * aspectRatio;
 
@@ -165,7 +143,7 @@ glm::vec3 Renderer::CastRay(Scene& scene, Ray ray, TraceInfo info) {
         }
     }
     else {
-        color = scene.mLightMap->Sample(ray.direction);
+        color = scene.mLightMap ? scene.mLightMap->Sample(ray.direction) : glm::vec3(0.0f);
     }
 
     return color;
@@ -235,6 +213,7 @@ glm::vec3 Renderer::Shade(Scene& scene, Ray ray, HitResult p, TraceInfo info) {
         directSampleData.normal = p.normal;
         directSampleData.wi = normalize(ray.direction);
         directSampleData.texCoord = p.texCoord;
+        directSampleData.aRandomGenerator = mLdsGenerator;
         bool ret = p.material->SampleAndEval(directSampleData, info);
         traceRay.direction = directSampleData.wo;
 
@@ -257,6 +236,7 @@ glm::vec3 Renderer::Shade(Scene& scene, Ray ray, HitResult p, TraceInfo info) {
         indirectSampleData.normal = p.normal;
         indirectSampleData.wi = normalize(ray.direction);
         indirectSampleData.texCoord = p.texCoord;
+        indirectSampleData.aRandomGenerator = mLdsGenerator;
         bool sampleSuccessFlag = p.material->SampleAndEval(indirectSampleData, info);
         traceRay.direction = indirectSampleData.wo;
 

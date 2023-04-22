@@ -11,6 +11,10 @@ MaterialTransparent::MaterialTransparent(float ior, glm::vec3 color) : Material(
 	return;
 }
 
+MaterialTransparent::~MaterialTransparent(){
+
+}
+
 bool MaterialTransparent::SampleAndEval(SampleData& data, TraceInfo info) {
 	float kr = Fresnel(data.wi, data.normal, mIor);
 	float rand = Utils::GetUniformRandom();
@@ -43,7 +47,7 @@ bool MaterialTransparent::SampleAndEval(SampleData& data, TraceInfo info) {
 	return true;
 }
 
-bool MaterialTransparent::SampleWithImportance(SampleData& data) {
+bool MaterialTransparent::SampleWithImportance(SampleData& data, const TraceInfo& info) {
 	return true;
 }
 
