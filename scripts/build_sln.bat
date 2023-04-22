@@ -5,8 +5,7 @@ call .\env_config.bat
 cd %~dp0\..
 mkdir build\msvc_sln
 cd build\msvc_sln
-cmake -G"Visual Studio 17 2022" ^
--DCMAKE_BUILD_TYPE=Release ^
+cmake -G"Visual Studio 17 2022"
 %~dp0\..\code
 
 pause

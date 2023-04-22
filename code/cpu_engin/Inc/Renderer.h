@@ -13,6 +13,7 @@ namespace CpuEngin
 class Renderer {
 public:
 	Renderer();
+    ~Renderer();
 	void Draw(float* image, Scene& scene);
 
 private:

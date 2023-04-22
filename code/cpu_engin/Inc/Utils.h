@@ -15,7 +15,8 @@
 #define CLAMP_COLOR
 
 namespace Consts {
-    const float PI = 3.14159265350f;
+    const float PI = 3.1415926535897f;
+    const float PI_2 = 1.570796326794896f;
     const float EPS = 0.0001f;
 
     const glm::vec2 SAVE_RAY_COORD = glm::vec2(83, 223);
@@ -95,7 +96,7 @@ struct Ray {
 struct TraceInfo {
     bool saveRay = false;
     int depth = 0;
-    int threadNum;
+    int pixelNum = 0; 
 };
 
 #endif // UTILS_H

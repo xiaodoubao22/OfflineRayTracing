@@ -53,6 +53,7 @@ private:
 
 private:
     std::unordered_map<std::string, TexureSampler*> mTexureMap;
+    std::unordered_map<std::string, TexureSampler2D<float>*> mTexureMapC1;
     std::unordered_map<std::string, Material*> mMaterialMap;
     std::vector<Shape*> mShapes;
     std::pair<bool, CpuEngin::Camera> mCamera = {false, CpuEngin::Camera()};
@@ -65,7 +66,8 @@ private:
         {"luminance", 1}, 
         {"r", 1}, 
         {"rg", 2}, 
-        {"rgb", 3}
+        {"rgb", 3},
+        {"rgba", 4}
     };
 };
 

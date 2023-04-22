@@ -1,12 +1,14 @@
 #include "SceneReader.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <stdio.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
+#include "stb/stb_image_resize.h"
 
 namespace Hmi
 {
@@ -193,7 +195,7 @@ int SceneReader::ProcessTexure(const std::string& floderName, const QDomNode &te
             return -1;
         }
         if(nChannels != nChannelsFromFile) {
-            std::cout << "num of channels error!" << std::endl;
+            std::cout << "num of channels error! " << nChannelsFromFile << "!=" << nChannels << std::endl;
             delete[] texureData;
             return -1;
         }
@@ -210,6 +212,10 @@ int SceneReader::ProcessTexure(const std::string& floderName, const QDomNode &te
         if (nChannels == 1) {
             TexureSampler1F* texureSampler = new TexureSampler1F(texureBuffer, width, height);
             mTexureMap.insert(std::make_pair(texureId, texureSampler));
+
+            TexureSampler2D<float>* sampler2D = new TexureSampler2D<float>(width, height);
+            sampler2D->SetData(texureBuffer, width, height);
+            mTexureMapC1.insert(std::make_pair(texureId, sampler2D));
         }
         else if (nChannels == 2) {
             TexureSampler2F* texureSampler = new TexureSampler2F(texureBuffer, width, height);
@@ -217,6 +223,10 @@ int SceneReader::ProcessTexure(const std::string& floderName, const QDomNode &te
         }
         else if (nChannels == 3) {
             TexureSampler3F* texureSampler = new TexureSampler3F(texureBuffer, width, height);
+            mTexureMap.insert(std::make_pair(texureId, texureSampler));
+        }
+        else if (nChannels == 4) {
+            TexureSampler4F* texureSampler = new TexureSampler4F(texureBuffer, width, height);
             mTexureMap.insert(std::make_pair(texureId, texureSampler));
         }
         else {
@@ -257,19 +267,32 @@ int SceneReader::ProcessEnvMap(const std::string& floderName, const QDomNode &en
     std::cout << "env_fileName " << filePath << std::endl;
 
     int width, height, nChannels, nChannelsFromFile;
-    float* hdrBuffer = nullptr;
+    float* imageBuffer = nullptr;
     if (envMapType == "spherical") {
+        QFileInfo figFileInfo(QString(filePath.c_str()));
+        std::string imageFileType = figFileInfo.suffix().toStdString();
         stbi_set_flip_vertically_on_load(true);
-        hdrBuffer = stbi_loadf(filePath.c_str(), &width, &height, &nChannelsFromFile, 0);
+        if (imageFileType == "hdr") {
+            imageBuffer = stbi_loadf(filePath.c_str(), &width, &height, &nChannelsFromFile, 0);
+        } else {
+            unsigned char* imageData = stbi_load(filePath.c_str(), &width, &height, &nChannelsFromFile, 0);
+            imageBuffer = new float[width * height * nChannelsFromFile];
+            for (int i = 0; i < width * height * nChannelsFromFile; i++) {
+                imageBuffer[i] = (float)imageData[i] / 255.0f;
+            }
+            delete[] imageData;
+        }
+        
         if (nChannelsFromFile == 3) {
-            SphericalMap* enviromentLightMap = new SphericalMap(hdrBuffer, width, height);
+            SphericalMap* enviromentLightMap = new SphericalMap(imageBuffer, width, height);
             mEnvMap.first = envMapId;
             mEnvMap.second = enviromentLightMap;
             std::cout << "get env_map "
                 << "id=" << mEnvMap.first << " "
                 << "width=" << width << " "
                 << "height=" << height << " "
-                << "channels=" << nChannelsFromFile << std::endl;
+                << "channels=" << nChannelsFromFile << " "
+                << "fileType=" << imageFileType << std::endl;
         }
     }
 }
@@ -387,10 +410,11 @@ MaterialDefuse* SceneReader::ReadDiffuseMaterial(const QDomNode &materialDomNode
         }
         else if (albedoType == "texure") {
             std::string texureIdStr = ReadStringFromDomNode(albedoDomNode);
-            std::cout << texureIdStr;
-            if (mTexureMap.find(texureIdStr) != mTexureMap.end() && 
-                mTexureMap[texureIdStr]->NumChannels() == 3) {
-                mat->SetAlbedo(static_cast<TexureSampler3F*>(mTexureMap[texureIdStr]));
+            std::cout << "texureIdStr=" << texureIdStr;
+            if (mTexureMap.find(texureIdStr) != mTexureMap.end()) {
+                mat->SetAlbedo(mTexureMap[texureIdStr]);
+            } else {
+                std::cout << "not found texureId:" << texureIdStr << std::endl;
             }
         }
         std::cout << std::endl;
@@ -494,10 +518,14 @@ MaterialCookTorrance* SceneReader::ReadCookTorranceMaterial(const QDomNode &mate
             std::cout << "texureId = " << texureIdStr << std::endl;
             if (mTexureMap.find(texureIdStr) != mTexureMap.end() && 
                 mTexureMap[texureIdStr]->NumChannels() == 1) {
-                mat->SetRoughness(static_cast<TexureSampler1F*>(mTexureMap[texureIdStr]));
+                // mat->SetRoughness(mTexureMap[texureIdStr]);
+                mat->SetRoughness(*mTexureMapC1[texureIdStr]);
             }
         }
     }
+
+    mat->GenerateKullaCountyMap();
+
     std::cout << "get MaterialCookTorrance: " 
         << "f0=" << mat->mF0.x << " " <<  mat->mF0.y << " " << mat->mF0.z << " "
         << "roughness=" << mat->mRoughness << " "
@@ -537,7 +565,7 @@ MaterialFrostedGlass* SceneReader::ReadFrostedGlassMaterial(const QDomNode &mate
             std::cout << "texureId = " << texureIdStr << std::endl;
             if (mTexureMap.find(texureIdStr) != mTexureMap.end() && 
                 mTexureMap[texureIdStr]->NumChannels() == 1) {
-                mat->SetRoughness(static_cast<TexureSampler1F*>(mTexureMap[texureIdStr]));
+                mat->SetRoughness(mTexureMap[texureIdStr]);
             }
         }
     }
