@@ -67,7 +67,7 @@ bool MaterialCookTorrance::SampleAndEval(SampleData& data, TraceInfo info) {
         float emuO = mEmuList.Sample(abs(dotWoToNormal), mRoughness);
         float eAvg = mEavgList.Sample(0.0f, mRoughness);
         float fms = (1.0f - emuI) * (1.0f - emuO) / std::max(Consts::PI * (1.0f - eAvg), Consts::EPS);
-        data.frCosine = (fr + glm::vec3(0.0f)) * abs(dotWoToNormal);
+        data.frCosine = (fr + glm::vec3(fms)) * abs(dotWoToNormal);
         // std::cout << mEList[tiIndex * mEmuListSize.y + rouhnessIndex].x << " " << mEList[tiIndex * mEmuListSize.y + rouhnessIndex].y << " " << mEList[tiIndex * mEmuListSize.y + rouhnessIndex].z << " " << toIndex << " " << tiIndex << " " << rouhnessIndex << std::endl;
         // data.frCosine = Distribution * Fresnel * Geometry / std::max(4.0f * abs(dotWiToNormal), Consts::EPS);    // BRDF * cosine
 
