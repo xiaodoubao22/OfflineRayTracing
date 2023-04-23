@@ -14,23 +14,37 @@
 
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res2.png)
 
-## 已实现特性
+### 在Cook-Torrance材质模型中使用Kulla-Conty近似能量守恒，白炉测试结果
+注：第一排使用Kulla-Conty近似，第二排未使用
 
-### 渲染算法及效果
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/white_furnace.png)
 
-蒙特卡洛光线追踪，实现直接光照、间接光照、阴影、辉映、焦散等效果。
+## 模块分解
 
-### 几何图元
+### CPU离线渲染器
 
-三角形、Mesh、球体
+多线程渲染器，实现蒙特卡洛光线追踪，模拟直接光照、间接光照、阴影、辉映、焦散等效果。
 
-### 材质
+### 几何模块
 
-漫反射、完全镜面反射、光滑玻璃、金属微表面模型(BRDF)、毛玻璃微表面模型(BTDF)
+构建BVH树、采用SAH加速，实现对三角形、Mesh网格、球体的射线求交算法。
 
-### 加速方法
+### 材质系统
 
-BVH树、SAH加速、多线程加速
+- 基础材质：<br/> 
+漫反射、完全镜面反射、光滑玻璃<br/> 
+- 微表面模型：<br/>
+只考虑反射(BRDF)的微表面模型----光滑/磨砂金属 <br/>
+考虑反射(BRDF)和折射(BTDF)的表面模型----磨砂玻璃 <br/>
+弹射光线重要性采样 <br/>
+
+### GPU离线渲染器
+
+TODO
+
+### GPU实时渲染器
+
+TODO
 
 ### 调试工具
 

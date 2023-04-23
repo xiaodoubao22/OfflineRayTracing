@@ -4,6 +4,10 @@ Material::Material(MaterialType type) {
 	mType = type;
 }
 
+Material::~Material() {
+
+}
+
 MaterialType Material::GetType() {
 	return mType;
 }

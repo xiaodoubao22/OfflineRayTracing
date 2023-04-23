@@ -1,5 +1,5 @@
-#ifndef RANDERER_H
-#define RANDERER_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
 #include "Utils.h"
 #include "Scene.h"
@@ -7,10 +7,13 @@
 #include <chrono>
 #include <mutex>
 
-class Randerer {
+namespace CpuEngin
+{
+
+class Renderer {
 public:
-	Randerer();
-	void SetViewMatrix(glm::mat4 view);
+	Renderer();
+    ~Renderer();
 	void Draw(float* image, Scene& scene);
 
 private:
@@ -24,9 +27,10 @@ private:
 	std::mutex mPrintMutex;
 	int mNumPixels = 0;
 	LdsGenerator* mLdsGenerator = nullptr;
-	glm::mat4 mViewMatrix = glm::mat4(0.0f);
+	CpuEnginConfig mConfigInfo;
 
 };
 
-#endif // !RANDERER_H
+#endif // !RENDERER_H
 
+}

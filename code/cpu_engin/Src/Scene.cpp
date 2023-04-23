@@ -120,7 +120,12 @@ std::vector<Mesh*> Scene::LoadModel(std::string modelPath, Material* material, f
     }
 
     // 遍历所有mesh
+    std::cout << "scene->mNumMeshes=" << scene->mNumMeshes << std::endl;
     for (int i = 0; i < scene->mNumMeshes; i++) {
+        std::cout << "name = " << scene->mMeshes[i]->mName.C_Str() << std::endl;
+        if (std::string(scene->mMeshes[i]->mName.C_Str()) == "BackGroundMat") {
+            continue;
+        }
         Mesh* mesh = new Mesh(scene->mMeshes[i], material, scale);
         result.push_back(mesh);
     }

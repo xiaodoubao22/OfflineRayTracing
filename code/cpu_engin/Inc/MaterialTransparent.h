@@ -11,8 +11,10 @@ public:
 public:
 	MaterialTransparent();
 	explicit MaterialTransparent(float ior, glm::vec3 color = glm::vec3(1.0f));
+    virtual ~MaterialTransparent() override;
+
 	virtual bool SampleAndEval(SampleData& data, TraceInfo info) override;
-	virtual bool SampleWithImportance(SampleData& data) override;
+	virtual bool SampleWithImportance(SampleData& data, const TraceInfo& info) override;
 	virtual void Eval(SampleData& data) override;
 	bool IsExtremelySpecular(glm::vec2 texCoord) override;
 };

@@ -11,28 +11,19 @@
 
 #include "assimp/scene.h"
 
- //#define SAVE_RAY
+// #define SAVE_RAY
 #define CLAMP_COLOR
 
 namespace Consts {
-    const float PI = 3.14159265350f;
-    const float EPS = 0.00001f;
-    const int WIDTH = 1440;
-    const int HEIGHT = 1440;
-    const float FOVY = 60.0f;
-    const float SCALE = 100;   // 用于测试模型放缩
-    const glm::vec3 EYE(0, 0, 4.0f * SCALE);
-    const int SPP = 1024;
-    const int THREAD_COUNT = 14;
-    const float GAMA = 1.0f / 2.2f;
-    const int MAX_TRACE_DEPTH = 10;
+    const float PI = 3.1415926535897f;
+    const float PI_2 = 1.570796326794896f;
+    const float EPS = 0.0001f;
 
-    const glm::vec2 SAVE_RAY_COORD = glm::vec2(334, 325);
+    const glm::vec2 SAVE_RAY_COORD = glm::vec2(83, 223);
     const int MAX_SAVE_DEPTH = 10;
 
     const glm::vec3 Z_AXIS = glm::vec3(0.0f, 0.0f, 1.0f);
     const glm::vec3 Y_AXIS = glm::vec3(0.0f, 1.0f, 0.0f);
-    
 }
 
 namespace Utils {
@@ -40,6 +31,7 @@ namespace Utils {
     glm::vec3 randomVec3();  // 单位球内的随机向量
     glm::vec3 randomDirection(glm::vec3 n);  // 法向半球随机向量
     glm::vec3 RandomDirectionFromLDS(glm::vec3 n, float x, float y);
+    void SaveImage(float* SRC, const std::string& filePath, int width, int height, int channel);
     inline float DegToRad(float deg);
     inline float RadToDeg(float rad);
     inline glm::vec3 AiVector3DToGlm(aiVector3D& aiVec);
@@ -104,7 +96,7 @@ struct Ray {
 struct TraceInfo {
     bool saveRay = false;
     int depth = 0;
-    int threadNum;
+    int pixelNum = 0; 
 };
 
 #endif // UTILS_H

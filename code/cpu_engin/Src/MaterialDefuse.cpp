@@ -10,17 +10,25 @@ MaterialDefuse::MaterialDefuse(glm::vec3 albedo) : Material(DEFUSE) {
 	return;
 }
 
-MaterialDefuse::MaterialDefuse(TexureSampler3F* albedoTexure) : Material(DEFUSE) {
+MaterialDefuse::MaterialDefuse(TexureSampler* albedoTexure) : Material(DEFUSE) {
 	mUseTexure = true;
 	mAlbedoTexure = albedoTexure;
 }
 
+MaterialDefuse::~MaterialDefuse() {
+}
+
 bool MaterialDefuse::SampleAndEval(SampleData& data, TraceInfo info) {
 	if (dot(data.wi, data.normal) < 0.0f) {
-		float x = LdsGenerator::GetInstance()->Get(info.depth * 2, info.threadNum);
-		float y = LdsGenerator::GetInstance()->Get(info.depth * 2 + 1, info.threadNum);
-		data.wo = Utils::RandomDirectionFromLDS(data.normal, x, y);
-		//wo = Utils::randomDirection(normal);
+        if (data.aRandomGenerator != nullptr) {
+            float x = data.aRandomGenerator->Get(info.depth * 2, info.pixelNum);
+            float y = data.aRandomGenerator->Get(info.depth * 2 + 1, info.pixelNum);
+            data.wo = Utils::RandomDirectionFromLDS(data.normal, x, y);
+        }
+        else {
+            data.wo = Utils::randomDirection(data.normal);
+        }
+
 		data.pdf = 1.0f / (2.0f * Consts::PI);
 		float cosine = std::max(dot(data.wo, data.normal), 0.0f);
 		glm::vec3 albedo = mUseTexure ? mAlbedoTexure->Sample(data.texCoord) : mAlbedo;
@@ -32,7 +40,7 @@ bool MaterialDefuse::SampleAndEval(SampleData& data, TraceInfo info) {
 
 }
 
-bool MaterialDefuse::SampleWithImportance(SampleData& data) {
+bool MaterialDefuse::SampleWithImportance(SampleData& data, const TraceInfo& info) {
 	return false;
 }
 
@@ -51,4 +59,13 @@ void MaterialDefuse::Eval(SampleData& data) {
 
 bool MaterialDefuse::IsExtremelySpecular(glm::vec2 texCoord) {
 	return false;
+}
+
+void MaterialDefuse::SetAlbedo(const glm::vec3& albedo) {
+	mAlbedo = albedo;
+}
+
+void MaterialDefuse::SetAlbedo(TexureSampler* albedoTexure) {
+	mAlbedoTexure = albedoTexure;
+	mUseTexure = true;
 }
