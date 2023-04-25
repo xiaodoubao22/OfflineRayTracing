@@ -33,6 +33,9 @@ Scene* SceneReader::ReadFromFloder(std::string floderName) {
     mShapes.clear();
     mCamera = {false, CpuEngin::Camera()};
     mConfigInfo = {false, CpuEnginConfig()};
+    // 放入默认材质
+    MaterialDefuse* defaultMaterial = new MaterialDefuse(glm::vec3(1.0, 0.0, 1.0));
+    mMaterialMap.insert(std::make_pair(std::string("DefaultMaterial"), defaultMaterial));
 
     if (floderName.back() != '/') {
         floderName += "/";
@@ -578,18 +581,18 @@ MaterialFrostedGlass* SceneReader::ReadFrostedGlassMaterial(const QDomNode &mate
 
 std::vector<Mesh*> SceneReader::ReadMeshFromDomNode(const QDomNode &shapeDomNode, std::string floderName) {
     std::vector<Mesh*> meshes(0);
-    Material* mat = nullptr;
+    // Material* mat = nullptr;
     glm::mat4 model(1.0f);
     float scale = 1.0f;
 
     // material
-    QDomNode materialDomNode = FindChildDomNodeByName(shapeDomNode, std::string("material"));
-    std::string materialID = ReadStringFromDomNode(materialDomNode);
-    if (mMaterialMap.find(materialID) != mMaterialMap.end()) {
-        mat = mMaterialMap[materialID];
-    } else {
-        return meshes;
-    }
+    // QDomNode materialDomNode = FindChildDomNodeByName(shapeDomNode, std::string("material"));
+    // std::string materialID = ReadStringFromDomNode(materialDomNode);
+    // if (mMaterialMap.find(materialID) != mMaterialMap.end()) {
+    //     mat = mMaterialMap[materialID];
+    // } else {
+    //     return meshes;
+    // }
 
     // model matrix
     QDomNode modelMatDomNode = FindChildDomNodeByName(shapeDomNode, std::string("model_mat"));
@@ -606,7 +609,7 @@ std::vector<Mesh*> SceneReader::ReadMeshFromDomNode(const QDomNode &shapeDomNode
     std::string objPath = floderName + objFileName;
 
     std::cout << objPath << std::endl;
-    meshes = Scene::LoadModel(objPath, mat, scale);
+    meshes = LoadModel(objPath, scale);
     for (auto mesh : meshes) {
         mesh->SetModelMatrix(model);
         mShapes.push_back(mesh);
@@ -825,6 +828,39 @@ int SceneReader::ReadIntFromDomNode(const QDomNode& node) {
         return std::stoi(dataDomNode.nodeValue().toStdString());
     }
     return 0;
+}
+
+std::vector<Mesh*> SceneReader::LoadModel(std::string modelPath, float scale) {
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate);
+
+    std::vector<Mesh*> result(0);
+
+    // 检查
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        std::cout << "ASSIMP IMPORT FAILED" << importer.GetErrorString() << std::endl;
+        return result;
+    }
+
+    // 遍历所有mesh
+    std::cout << "scene->mNumMeshes=" << scene->mNumMeshes << std::endl;
+    for (int i = 0; i < scene->mNumMeshes; i++) {
+        std::cout << "name = " << scene->mMeshes[i]->mName.C_Str() << std::endl;
+
+        // 读取材质
+        int matIndex = scene->mMeshes[i]->mMaterialIndex;
+        std::string matName = scene->mMaterials[matIndex]->GetName().C_Str();
+        std::cout << "mat name = " << matName << std::endl;
+        if(mMaterialMap.find(matName) == mMaterialMap.end()) {
+            std::cout << "not found material" << std::endl; 
+            continue;
+        }
+
+        Material* mat = mMaterialMap[matName];
+        Mesh* mesh = new Mesh(scene->mMeshes[i], mat, scale);
+        result.push_back(mesh);
+    }
+    return result;
 }
 
 }

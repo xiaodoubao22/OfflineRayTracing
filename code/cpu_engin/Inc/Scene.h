@@ -38,7 +38,7 @@ public:
 	HitResult GetIntersect(Ray ray);
 	bool SampleLight(float& pdf, HitResult& res);
 
-	static std::vector<Mesh*> LoadModel(std::string modelPath, Material* material, float scale = 1.0f);
+	// static std::unordered_map<std::string, Mesh*> Scene::LoadModel(std::string modelPath, float scale=1.0f);
 
 };
 

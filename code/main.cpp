@@ -31,3 +31,36 @@ int main() {
 
 }
 
+// #include "stb/stb_image.h"
+// int main() {
+
+
+//     int width, height, nChannels;
+//     unsigned char* texureData = nullptr;
+//     texureData = stbi_load("../../result/image0_8.png", &width, &height, &nChannels, 0);
+//     // 转换格式
+//     float* texureBuffer1 = new float[width * height * nChannels];
+//     for (int i = 0; i < width * height * nChannels; i++) {
+//         texureBuffer1[i] = (float)texureData[i] / 255.0f;
+//     }
+//     std::cout << "1111111111" << std::endl;
+
+//     delete[] texureData;
+
+//     std::cout << "222222222222" << std::endl;
+
+//     texureData = stbi_load("../../result/image08.png", &width, &height, &nChannels, 0);
+//     // 转换格式
+//     float* texureBuffer2 = new float[width * height * nChannels];
+//     for (int i = 0; i < width * height * nChannels; i++) {
+//         texureBuffer2[i] = (float)texureData[i] / 255.0f;
+//     }
+// std::cout << "33333333333" << std::endl;
+//     for (int i = 0; i < width * height * nChannels; i++) {
+//         texureBuffer2[i] = (texureBuffer1[i] + texureBuffer2[i]) * 0.5f;
+//     }
+// std::cout << width << " " << height << " " << nChannels << std::endl;
+//     Utils::SaveImage(texureBuffer2, std::string("../../result/imagennn.png"), width, height, 3);
+//     std::cout << "55555555555" << std::endl;
+
+// }

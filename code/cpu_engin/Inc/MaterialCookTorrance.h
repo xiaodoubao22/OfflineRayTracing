@@ -11,6 +11,7 @@ public:
     float mAlpha;
     float mAlphaSquare;
     glm::vec3 mF0;
+    glm::vec3 mFavg;
 
     TexureSampler2D<float> mRoughnessTexure;
 

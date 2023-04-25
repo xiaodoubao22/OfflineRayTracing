@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <unordered_map>
 
 Scene::Scene() {
 }
@@ -102,34 +103,34 @@ bool Scene::SampleLight(float& pdf, HitResult& res) {
 }
 
 
-std::vector<Mesh*> Scene::LoadModel(std::string modelPath, Material* material, float scale) {
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate);
+// std::unordered_map<std::string, Mesh*> Scene::LoadModel(std::string modelPath, float scale) {
+//     Assimp::Importer importer;
+//     const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate);
 
-    std::vector<Mesh*> result(0);
+//     std::vector<Mesh*> result(0);
 
-    // 检查
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        std::cout << "ASSIMP IMPORT FAILED" << importer.GetErrorString() << std::endl;
-        return result;
-    }
+//     // 检查
+//     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+//         std::cout << "ASSIMP IMPORT FAILED" << importer.GetErrorString() << std::endl;
+//         return result;
+//     }
 
-    // 遍历所有材质
-    for (int i = 0; i < scene->mNumMaterials; i++) {
+//     // 遍历所有材质
+//     for (int i = 0; i < scene->mNumMaterials; i++) {
+//     }
 
-    }
+//     // 遍历所有mesh
+//     std::cout << "scene->mNumMeshes=" << scene->mNumMeshes << std::endl;
+//     for (int i = 0; i < scene->mNumMeshes; i++) {
+//         std::cout << "name = " << scene->mMeshes[i]->mName.C_Str() << std::endl;
+//         if (std::string(scene->mMeshes[i]->mName.C_Str()) == "BackGroundMat") {
+//             continue;
+//         }
+//         Mesh* mesh = new Mesh(scene->mMeshes[i], material, scale);
+//         result.push_back(mesh);
 
-    // 遍历所有mesh
-    std::cout << "scene->mNumMeshes=" << scene->mNumMeshes << std::endl;
-    for (int i = 0; i < scene->mNumMeshes; i++) {
-        std::cout << "name = " << scene->mMeshes[i]->mName.C_Str() << std::endl;
-        if (std::string(scene->mMeshes[i]->mName.C_Str()) == "BackGroundMat") {
-            continue;
-        }
-        Mesh* mesh = new Mesh(scene->mMeshes[i], material, scale);
-        result.push_back(mesh);
-    }
+//     }
 
-    //delete scene;
-    return result;
-}
+//     //delete scene;
+//     return result;
+// }
