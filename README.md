@@ -14,8 +14,12 @@
 
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res2.png)
 
-### 在Cook-Torrance材质模型中使用Kulla-Conty近似能量守恒，白炉测试结果
-注：第一排使用Kulla-Conty近似，第二排未使用
+### 在Cook-Torrance材质模型中使用Kulla-Conty近似能量守恒
+注：第一排未补偿，第二排使用Kulla-Conty近似补偿，粗糙度从左至右分别为0.4、0.6、0.8
+
+![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/knob.png)
+
+### 白炉测试结果，第一行使用Kulla-Conty补偿，第二排未补偿
 
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/white_furnace.png)
 

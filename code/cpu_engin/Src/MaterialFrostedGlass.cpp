@@ -1,6 +1,14 @@
 #include "MaterialFrostedGlass.h"
 #include "LdsGenerator.h"
 
+// glm::vec3 ImportanceSampleGGX(glm::vec2 Xi, glm::vec3 wi, float alphaSquare) {
+//     float cosThetaSquare = (1.0f - Xi.x) / (Xi.x * (alphaSquare - 1.0f) + 1.0f);
+//     float cosTheta = std::sqrt(cosThetaSquare);
+//     float sinTheta = std::sqrt(1.0f - cosThetaSquare);
+//     float phi = 2.0f * Consts::PI * Xi.y;
+//     return glm::vec3(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
+// }
+
 MaterialFrostedGlass::MaterialFrostedGlass() : Material(FROSTED_GLASS) {
     mF0 = 0.04f;
     mRoughness = 0.5f;
@@ -204,6 +212,73 @@ float MaterialFrostedGlass::FresnelSchlic(glm::vec3 wi, glm::vec3 wh) {
     }
 
     return mF0 + (1.0f - mF0) * powf(1.0f - cosTheta, 5.0f);
+}
+
+void MaterialFrostedGlass::GenerateKullaCountyMap() {
+    // if (mEmuList.Width() * mEavgList.Height() != 0) {
+    //     return;
+    // }
+
+    // LdsGenerator aGen(1, 2);
+    // mEmuList = TexureSampler2D<float>(mEmuListSize, mEmuListSize);
+    // mEavgList = TexureSampler2D<float>(1, mEmuListSize);
+
+    // for (int i = 0; i < mEmuListSize; i++) {            // roughness
+    //     for (int j = 0; j < mEmuListSize; j++) {        // theta
+    //         // roughness
+    //         float roughness = ((float)i + 0.5f) / mEmuListSize;
+    //         float alpha = roughness * roughness;
+    //         float alphaSquare = alpha * alpha;
+        
+    //         // cosTheta
+    //         float dotWiToN = ((float)j + 0.5f) * 2.0f / mEmuListSize - 1.0f;       // (-1, 1)
+    //         glm::vec3 wi = glm::vec3(std::sqrt(1.0f - dotWiToN * dotWiToN), 0.0f, dotWiToN);
+
+    //         // integrate
+    //         float e(0.0f);
+    //         aGen.Reset(0, 0);
+    //         aGen.Reset(1, 0);
+    //         for(int sample = 0; sample < mESample; sample++) {
+    //             float ksi1 = aGen.Get(0, 0);
+    //             float ksi2 = aGen.Get(1, 0);
+    //             glm::vec3 wh = ImportanceSampleGGX(glm::vec2(ksi1, ksi2), Consts::Z_AXIS, alphaSquare);
+                
+    //             float fresnel = FresnelSchlic(wi, wh);
+    //             float rand = Utils::GetUniformRandom();
+    //             if (rand < fresnel) {
+
+    //             }
+    //             else {
+
+    //             }
+
+
+    //             glm::vec3 wo = glm::reflect(-wi, wh);
+
+    //             float dotWiToN = std::max(wi.z, 0.0f);
+    //             float dotWoToN = std::max(wo.z, 0.0f);
+    //             float dotWhToN = std::max(wh.z, 0.0f);
+    //             float dotWiToWh = std::max(dot(wi, wh), 0.0f);
+
+    //             float Geometry = GeometrySmith(abs(dotWoToN), abs(dotWiToN), alphaSquare);
+    //             e += (Geometry * dotWiToWh) / (dotWhToN * dotWiToN);
+    //         }
+    //         e /= mESample;
+    //         mEmuList.SetPixel(j, i, e);
+    //     }
+    // }
+    // Utils::SaveImage(mEmuList.GetData(), "../../result/emufg.png", mEmuListSize, mEmuListSize, 1);
+
+    // for (int i = 0; i < mEmuListSize; i++) {     // roughness
+    //     float eAvg= 0.0f;
+    //     for(int j = 0; j < mEmuListSize; j++) {  // 均匀采样 sinT
+    //         float dotWiToN = ((float)j + 0.5f) / mEmuListSize; 
+    //         eAvg += mEmuList.Sample(j, i) * dotWiToN * 2.0f / mEmuListSize;
+    //     }
+    //     mEavgList.SetPixel(0, i, eAvg);
+    // }
+
+    // Utils::SaveImage(mEavgList.GetData(), "../../result/eavgfg.png", 1, mEmuListSize, 1);
 }
 
 void MaterialFrostedGlass::SetRoughness(float roughness) {

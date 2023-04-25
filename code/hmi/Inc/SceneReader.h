@@ -51,6 +51,8 @@ private:
     float ReadFloatFromDomNode(const QDomNode& node);
     int ReadIntFromDomNode(const QDomNode& node);
 
+    std::vector<Mesh*> LoadModel(std::string modelPath, float scale = 1.0f);
+
 private:
     std::unordered_map<std::string, TexureSampler*> mTexureMap;
     std::unordered_map<std::string, TexureSampler2D<float>*> mTexureMapC1;

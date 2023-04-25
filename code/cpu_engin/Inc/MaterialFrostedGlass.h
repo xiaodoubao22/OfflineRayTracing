@@ -11,9 +11,16 @@ public:
 	float mAlpha;
 	float mAlphaSquare;
 	float mF0;
+    float mFavg;
 	float mIor;
 
 	TexureSampler* mRoughnessTexure = nullptr;
+
+    // kulla-county
+    static const int mEmuListSize = 128;   // (h=thetaO, w=roughness)
+    static const int mESample = 1024;        // 积分采样次数
+    static TexureSampler2D<float> mEmuList;
+    static TexureSampler2D<float> mEavgList;
 
 public:
 	MaterialFrostedGlass();
@@ -30,6 +37,8 @@ public:
 	float GeometrySchlickGGX(float dotNormalToW, float alphaSquare);
 	float GeometrySmith(float absDotWiToNormal, float absDotWoToNormal, float alphaSquare);
 	float FresnelSchlic(glm::vec3 wi, glm::vec3 wh);
+
+    void GenerateKullaCountyMap();
 
 public:
     void SetRoughness(float roughness);
