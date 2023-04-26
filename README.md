@@ -15,6 +15,7 @@
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/res2.png)
 
 ### 在Cook-Torrance材质模型中使用Kulla-Conty近似能量守恒
+
 注：第一排未补偿，第二排使用Kulla-Conty近似补偿，粗糙度从左至右分别为0.4、0.6、0.8
 
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/knob.png)
@@ -35,12 +36,18 @@
 
 ### 材质系统
 
-- 基础材质：<br/> 
-漫反射、完全镜面反射、光滑玻璃<br/> 
+- 基础材质：<br/>
+
+- [x] 漫反射
+- [x] 完全镜面反射
+- [x] 光滑玻璃
+
 - 微表面模型：<br/>
-只考虑反射(BRDF)的微表面模型----光滑/磨砂金属 <br/>
-考虑反射(BRDF)和折射(BTDF)的表面模型----磨砂玻璃 <br/>
-弹射光线重要性采样 <br/>
+
+- [x] GGX-BRDF(光滑/磨砂金属)
+- [x] GGX-BSDF(磨砂玻璃)
+
+- 弹射光线重要性采样 <br/>
 
 ### GPU离线渲染器
 

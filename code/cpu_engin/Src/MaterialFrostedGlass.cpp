@@ -1,13 +1,16 @@
 #include "MaterialFrostedGlass.h"
 #include "LdsGenerator.h"
 
-// glm::vec3 ImportanceSampleGGX(glm::vec2 Xi, glm::vec3 wi, float alphaSquare) {
-//     float cosThetaSquare = (1.0f - Xi.x) / (Xi.x * (alphaSquare - 1.0f) + 1.0f);
-//     float cosTheta = std::sqrt(cosThetaSquare);
-//     float sinTheta = std::sqrt(1.0f - cosThetaSquare);
-//     float phi = 2.0f * Consts::PI * Xi.y;
-//     return glm::vec3(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
-// }
+TexureSampler2D<float> MaterialFrostedGlass::mEmuList;
+TexureSampler2D<float> MaterialFrostedGlass::mEavgList;
+
+glm::vec3 MaterialFrostedGlass::ImportanceSampleGGX(glm::vec2 Xi, glm::vec3 wi, float alphaSquare) {
+    float cosThetaSquare = (1.0f - Xi.x) / (Xi.x * (alphaSquare - 1.0f) + 1.0f);
+    float cosTheta = std::sqrt(cosThetaSquare);
+    float sinTheta = std::sqrt(1.0f - cosThetaSquare);
+    float phi = 2.0f * Consts::PI * Xi.y;
+    return glm::vec3(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
+}
 
 MaterialFrostedGlass::MaterialFrostedGlass() : Material(FROSTED_GLASS) {
     mF0 = 0.04f;
@@ -238,6 +241,7 @@ void MaterialFrostedGlass::GenerateKullaCountyMap() {
     //         float e(0.0f);
     //         aGen.Reset(0, 0);
     //         aGen.Reset(1, 0);
+    //         float sampleSize = mESample;
     //         for(int sample = 0; sample < mESample; sample++) {
     //             float ksi1 = aGen.Get(0, 0);
     //             float ksi2 = aGen.Get(1, 0);
@@ -246,24 +250,53 @@ void MaterialFrostedGlass::GenerateKullaCountyMap() {
     //             float fresnel = FresnelSchlic(wi, wh);
     //             float rand = Utils::GetUniformRandom();
     //             if (rand < fresnel) {
-
+    //                 // reflect
+    //                 glm::vec3 H = wh;    // 指向入射侧，专供refract使用
+    //                 if (dotWiToN > 0) {
+    //                     H = -H;
+    //                 }
+    //                 glm::vec3 wo = glm::reflect(wi, H);
+    //                 float dotWoToN = glm::dot(wo, Consts::Z_AXIS);
+    //                 if (dotWiToN * dotWoToN > 0.0f) {
+    //                     sampleSize--;
+    //                     continue;
+    //                 }
+    //                 float dotWiToH = glm::dot(wi, wh);
+    //                 float dotWoToH = glm::dot(wo, wh);
+    //                 float dotWhToN = std::max(wh.z, 0.0f);
+    //                 // fr
+    //                 float geometry = GeometrySmith(abs(dotWiToN), abs(dotWoToN), alphaSquare);
+    //                 e += (geometry * dotWiToH) / (dotWhToN * dotWiToN);
     //             }
     //             else {
-
+    //                 // refract
+    //                 float etaI = 1.0f, etaT = mIor;
+    //                 glm::vec3 H = wh;    // 指向入射侧，专供refract使用
+    //                 if (dotWiToN > 0) {
+    //                     std::swap(etaI, etaT);
+    //                     H = -H;
+    //                 }
+    //                 float eta = etaI / etaT;
+    //                 // wo
+    //                 glm::vec3 wo = glm::refract(wi, H, eta);
+    //                 if (glm::length(wo) < Consts::EPS) {
+    //                     sampleSize--;
+    //                     continue;
+    //                 }
+    //                 float dotWoToN = glm::dot(wo, Consts::Z_AXIS);
+    //                 if (dotWiToN * dotWoToN < 0.0f) {
+    //                     sampleSize--;
+    //                     continue;
+    //                 }
+    //                 // fr
+    //                 float dotWiToH = glm::dot(wi, H);
+    //                 float dotWoToH = glm::dot(wo, H);
+    //                 float geometry = GeometrySmith(abs(dotWiToN), abs(dotWoToN), alphaSquare);
+    //                 e += geometry * abs(dotWiToH) / (abs(dotWiToN) * wh.z);
     //             }
-
-
-    //             glm::vec3 wo = glm::reflect(-wi, wh);
-
-    //             float dotWiToN = std::max(wi.z, 0.0f);
-    //             float dotWoToN = std::max(wo.z, 0.0f);
-    //             float dotWhToN = std::max(wh.z, 0.0f);
-    //             float dotWiToWh = std::max(dot(wi, wh), 0.0f);
-
-    //             float Geometry = GeometrySmith(abs(dotWoToN), abs(dotWiToN), alphaSquare);
-    //             e += (Geometry * dotWiToWh) / (dotWhToN * dotWiToN);
     //         }
-    //         e /= mESample;
+            
+    //         e /= sampleSize;
     //         mEmuList.SetPixel(j, i, e);
     //     }
     // }

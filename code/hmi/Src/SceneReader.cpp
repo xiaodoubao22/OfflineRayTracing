@@ -572,6 +572,9 @@ MaterialFrostedGlass* SceneReader::ReadFrostedGlassMaterial(const QDomNode &mate
             }
         }
     }
+
+    mat->GenerateKullaCountyMap();
+    
     std::cout << "get MaterialFrostedGlass: " 
         << "ior=" << mat->mIor << " "
         << "roughness=" << mat->mRoughness << " "
