@@ -38,6 +38,7 @@ public:
 	float GeometrySmith(float absDotWiToNormal, float absDotWoToNormal, float alphaSquare);
 	float FresnelSchlic(glm::vec3 wi, glm::vec3 wh);
 
+    glm::vec3 ImportanceSampleGGX(glm::vec2 Xi, glm::vec3 wi, float alphaSquare);
     void GenerateKullaCountyMap();
 
 public:

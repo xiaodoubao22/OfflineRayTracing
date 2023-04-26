@@ -65,12 +65,12 @@ bool MaterialCookTorrance::SampleAndEval(SampleData& data, TraceInfo info) {
         glm::vec3 fr = Distribution * Fresnel * Geometry / std::max(4.0f * abs(dotWiToNormal) * abs(dotWoToNormal), Consts::EPS);
 
         // kulla-county
-        // float emuI = mEmuList.Sample(abs(dotWiToNormal), mRoughness);
-        // float emuO = mEmuList.Sample(abs(dotWoToNormal), mRoughness);
-        // float eAvg = mEavgList.Sample(0.0f, mRoughness);
-        // float fms = (1.0f - emuI) * (1.0f - emuO) / std::max(Consts::PI * (1.0f - eAvg), Consts::EPS);
-        // glm::vec3 fcol = mFavg * eAvg / (1.0f - mFavg * (1.0f - eAvg));
-        data.frCosine = (fr/* + fms * fcol*/) * abs(dotWoToNormal);
+        float emuI = mEmuList.Sample(abs(dotWiToNormal), mRoughness);
+        float emuO = mEmuList.Sample(abs(dotWoToNormal), mRoughness);
+        float eAvg = mEavgList.Sample(0.0f, mRoughness);
+        float fms = (1.0f - emuI) * (1.0f - emuO) / std::max(Consts::PI * (1.0f - eAvg), Consts::EPS);
+        glm::vec3 fcol = mFavg * eAvg / (1.0f - mFavg * (1.0f - eAvg));
+        data.frCosine = (fr + fms * fcol) * abs(dotWoToNormal);
         // std::cout << mEList[tiIndex * mEmuListSize.y + rouhnessIndex].x << " " << mEList[tiIndex * mEmuListSize.y + rouhnessIndex].y << " " << mEList[tiIndex * mEmuListSize.y + rouhnessIndex].z << " " << toIndex << " " << tiIndex << " " << rouhnessIndex << std::endl;
         // data.frCosine = Distribution * Fresnel * Geometry / std::max(4.0f * abs(dotWiToNormal), Consts::EPS);    // BRDF * cosine
 
