@@ -16,7 +16,7 @@
 
 ### 在Cook-Torrance材质模型中使用Kulla-Conty近似能量守恒
 
-注：第一排未补偿，第二排使用Kulla-Conty近似补偿，粗糙度从左至右分别为0.4、0.6、0.8
+注：第一排未补偿，第二排使用Kulla-Conty近似补偿，粗糙度从左至右分别为0.4、0.6、0.8、1.0
 
 ![image](https://raw.githubusercontent.com/xiaodoubao22/LearnRendering/main/figure/knob.png)
 
