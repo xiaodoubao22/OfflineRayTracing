@@ -1,8 +1,8 @@
-# LearnRendering
+# OfflineRayTracing
 
 ## 简介
 
-一个在跑在CPU上的光线追踪离线绘制引擎，主要作为学习用途，目前正在开发中
+一个在跑在CPU上的光线追踪离线绘制引擎，主要作为学习用途
 
 ## 效果图
 
@@ -56,11 +56,7 @@
 
 ## 环境配置
 
-本项目可用MinGW或MSVC编译，用到了三方库：ASSIMP、GLM、stb、Qt
-
-### Qt
-
-正常从官网下载安装即可，建议Qt版本为5.14.2，建议安装Qt同时把MinGW选上
+本项目可用MinGW或MSVC编译，用到了三方库：ASSIMP、GLM、stb
 
 ### 其他三方库
 
@@ -85,4 +81,3 @@ scrips文件夹中为构建和编译脚本
 - build_debug_mingw.bat 用MinGW构建并编译Debug版本
 - build_release_mingw.bat 用MinGW构建并编译Release版本
 - build_sln.bat 用MSVC 17构建VS工程
-- 其余脚本正在开发中，敬请期待
